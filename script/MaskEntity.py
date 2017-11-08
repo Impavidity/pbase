@@ -6,10 +6,14 @@ TODO: documents
 
 from tqdm import tqdm
 from argparse import ArgumentParser
+import codecs
+
+def unescaped_str(arg_str):
+    return codecs.decode(str(arg_str), 'unicode_escape')
 
 def get_args():
     parser = ArgumentParser(description='MaskEntity')
-    parser.add_argument('--delimiter',type=str, default='\t')
+    parser.add_argument('--delimiter',type=unescaped_str, default='\t')
     parser.add_argument('--sent_id', type=int, default=0)
     parser.add_argument('--tag_id', type=int, default=1)
     parser.add_argument('--mask_tag', type=str, default='<e>')
