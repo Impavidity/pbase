@@ -33,8 +33,8 @@ def masking(args):
         items = line.strip().split(args.delimiter)
         sentence = items[args.sent_id].strip().split()
         label = items[args.tag_id].strip().split()
-        if len(sentence) != len(label):
-            print("Length mismatch in file : {}".format(args.input_file))
+        # if len(sentence) != len(label):
+        #     print("Length mismatch in file : {}".format(args.input_file))
         sen_str = []
         e_str = []
         flag = False
