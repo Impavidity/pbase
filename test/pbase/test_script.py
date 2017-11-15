@@ -9,6 +9,10 @@ class TestScript(unittest.TestCase):
         embeddingFilter.setTargetBinaryPath("entity.pt")
         embeddingFilter.toBinary()
         embeddingFilter.extractAverageEmbedding("entity_test")
+    def test_LinguisticFeatureAnnotator(self):
+        annotator = script.LinguisticFeatureAnnotator("tools")
+        annotator.addCorpus('test', '/u1/p8shi/pycharm/QA_related_subtasks/JointPrediction/data/annotated_fb_entity_test.txt', 0)
+        annotator.annotate('test')
 
 
 if __name__=="__main__":

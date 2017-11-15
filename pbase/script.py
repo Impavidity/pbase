@@ -4,8 +4,13 @@ from functools import reduce
 import array
 import torch
 import six
-import numpy as np
 import os
+import subprocess
+import numpy as np
+from six.moves.urllib.request import urlretrieve
+import zipfile
+from .utils import reporthook
+
 
 class EmbeddingFilter():
     """
@@ -135,3 +140,107 @@ class EmbeddingFilter():
     def clearAll(self):
         for key in self.Corpus.keys():
             self.clearCorpus(key)
+
+class LinguisticFeatureAnnotator():
+    """
+    Need to download stanford Core NLP
+    one sentence one line, tokenized beforehand
+    props:
+        ssplit.eolonly=true
+        tokenize.whitespace=true
+    """
+    def __init__(self, stanfordCoreNLPPath=None):
+        self.stanfordCoreNLPPath = stanfordCoreNLPPath
+        self.url = "http://nlp.stanford.edu/software/stanford-corenlp-full-2017-06-09.zip"
+        self.dir = "stanford-corenlp-full-2017-06-09"
+        self.tmp = "/tmp/annotator"
+        os.makedirs(self.tmp, exist_ok=True)
+        self.corpusList = {}
+        self.prop_path = None
+        if self.stanfordCoreNLPPath != None:
+            self.prop_path = os.path.abspath(os.path.join(self.stanfordCoreNLPPath, self.dir, 'prop'))
+            fout = open(self.prop_path, 'w')
+            fout.write("{}\n{}".format("ssplit.eolonly=true", "tokenize.whitespace=true"))
+            fout.close()
+
+    def setStanfordCoreNLPPath(self, stanfordCoreNLPPath):
+        self.stanfordCoreNLPPath = stanfordCoreNLPPath
+
+    """
+    CoreNLP version 3.8.0
+    """
+    def downloadStanfordCoreNLP(self, stanfordCoreNLPPath):
+        self.stanfordCoreNLPPath = stanfordCoreNLPPath
+        dest = os.path.join(self.stanfordCoreNLPPath, os.path.basename(self.url))
+        if not os.path.isfile(dest):
+            with tqdm(unit='B', unit_scale=True, miniters=1, desc=dest) as t:
+                urlretrieve(self.url, dest, reporthook=reporthook(t))
+        with zipfile.ZipFile(dest, "r") as zf:
+            zf.extractall(self.stanfordCoreNLPPath)
+        self.prop_path = os.path.abspath(os.path.join(self.stanfordCoreNLPPath, self.dir, 'prop'))
+        fout = open(self.prop_path, 'w')
+        fout.write("{}\n{}".format("ssplit.eolonly=true", "tokenize.whitespace=true"))
+        fout.close()
+
+
+    def addCorpus(self, corpusName, path, textIndex, dilimiter='\t'):
+        fin = open(path)
+        dest = os.path.join(self.tmp, corpusName)
+        fout = open(dest, 'w')
+        for line in fin.readlines():
+            text = line.strip().split(dilimiter)[textIndex]
+            fout.write(text+"\n")
+        fout.close()
+        self.corpusList[corpusName] = path
+
+    def annotate(self, corpusName, anno_type="normal"):
+        if corpusName not in self.corpusList:
+            print("Please add corpus {} before annotating".format(corpusName))
+            return
+        if anno_type == "normal":
+            subprocess.run(['java', '-cp',
+                            '{}/*'.format(os.path.abspath(os.path.join(self.stanfordCoreNLPPath, self.dir))),
+                            '-Xmx3g', 'edu.stanford.nlp.pipeline.StanfordCoreNLP',
+                            '-annotators', 'tokenize,ssplit,pos,lemma,ner,depparse',
+                            '-file', os.path.join(self.tmp, corpusName),
+                            '-props', self.prop_path,
+                            '-outputFormat', 'conll',
+                            '-outputDirectory', self.tmp])
+        elif anno_type == "caseless":
+            subprocess.run(['java', '-cp',
+                            '{}/*'.format(os.path.abspath(os.path.join(self.stanfordCoreNLPPath, self.dir))),
+                            '-Xmx3g', 'edu.stanford.nlp.pipeline.StanfordCoreNLP',
+                            '-annotators', 'tokenize,ssplit,pos,lemma,parse',
+                            '-file', os.path.join(self.tmp, corpusName),
+                            '-props', self.prop_path,
+                            '-outputFormat', 'conll',
+                            '-pos.model', 'edu/stanford/nlp/models/pos-tagger/english-caseless-left3words-distsim.tagger',
+                            '-ner.model', 'edu/stanford/nlp/models/ner/english.all.3class.caseless.distsim.crf.ser.gz,'\
+                            'edu/stanford/nlp/models/ner/english.muc.7class.caseless.distsim.crf.ser.gz,'\
+                            'edu/stanford/nlp/models/ner/english.conll.4class.caseless.distsim.crf.ser.gz',
+                            '-parse.model', 'edu/stanford/nlp/models/lexparser/englishPCFG.caseless.ser.gz',
+                            '-outputDirectory', self.tmp])
+        ftext = open(self.corpusList[corpusName])
+        fanno = open(os.path.join(self.tmp, corpusName+'.conll'))
+
+        # Extract features on CONLL format
+        words, lamma, pos, dep, head = [], [], [], [], []
+        tokens = []
+        linguisticFeature = []
+        for line in fanno.readlines():
+            items = line.strip().split('\t')
+            if len(line) == 1: # len(['']) == 1
+                for token in tokens:
+                    words.append(token[1])
+
+
+
+
+
+
+
+
+
+
+
+
