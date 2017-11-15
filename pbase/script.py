@@ -152,6 +152,7 @@ class LinguisticFeatureAnnotator():
     def __init__(self, stanfordCoreNLPPath=None):
         self.stanfordCoreNLPPath = stanfordCoreNLPPath
         self.url = "http://nlp.stanford.edu/software/stanford-corenlp-full-2017-06-09.zip"
+        self.caseless_model_url = "http://nlp.stanford.edu/software/stanford-english-corenlp-2017-06-09-models.jar"
         self.dir = "stanford-corenlp-full-2017-06-09"
         self.tmp = "/tmp/annotator"
         os.makedirs(self.tmp, exist_ok=True)
@@ -178,6 +179,9 @@ class LinguisticFeatureAnnotator():
         with zipfile.ZipFile(dest, "r") as zf:
             zf.extractall(self.stanfordCoreNLPPath)
         self.prop_path = os.path.abspath(os.path.join(self.stanfordCoreNLPPath, self.dir, 'prop'))
+        with tqdm(unit='B', unit_scale=True, miniters=1, desc=os.path.basename(self.caseless_model_url)) as t:
+            urlretrieve(self.caseless_model_url, os.path.join(self.stanfordCoreNLPPath, self.dir,
+                        os.path.basename(self.caseless_model_url)),reporthook=reporthook(t))
         fout = open(self.prop_path, 'w')
         fout.write("{}\n{}".format("ssplit.eolonly=true", "tokenize.whitespace=true"))
         fout.close()
@@ -198,7 +202,7 @@ class LinguisticFeatureAnnotator():
             print("Please add corpus {} before annotating".format(corpusName))
             return
         if anno_type == "normal":
-            subprocess.run(['java', '-cp',
+            subprocess.run(['java', '-XX:-UseGCOverheadLimit', '-cp',
                             '{}/*'.format(os.path.abspath(os.path.join(self.stanfordCoreNLPPath, self.dir))),
                             '-Xmx3g', 'edu.stanford.nlp.pipeline.StanfordCoreNLP',
                             '-annotators', 'tokenize,ssplit,pos,lemma,ner,depparse',
@@ -207,10 +211,10 @@ class LinguisticFeatureAnnotator():
                             '-outputFormat', 'conll',
                             '-outputDirectory', self.tmp])
         elif anno_type == "caseless":
-            subprocess.run(['java', '-cp',
+            subprocess.run(['java', '-XX:-UseGCOverheadLimit', '-cp',
                             '{}/*'.format(os.path.abspath(os.path.join(self.stanfordCoreNLPPath, self.dir))),
                             '-Xmx3g', 'edu.stanford.nlp.pipeline.StanfordCoreNLP',
-                            '-annotators', 'tokenize,ssplit,pos,lemma,parse',
+                            '-annotators', 'tokenize,ssplit,pos,lemma, ner, parse',
                             '-file', os.path.join(self.tmp, corpusName),
                             '-props', self.prop_path,
                             '-outputFormat', 'conll',
