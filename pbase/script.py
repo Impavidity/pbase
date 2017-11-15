@@ -193,7 +193,7 @@ class LinguisticFeatureAnnotator():
         fout.close()
         self.corpusList[corpusName] = path
 
-    def annotate(self, corpusName, anno_type="normal"):
+    def annotate(self, corpusName, output, anno_type="normal", tag_head_word=False, tag_head_lamma=False, tag_head_pos=False):
         if corpusName not in self.corpusList:
             print("Please add corpus {} before annotating".format(corpusName))
             return
@@ -222,16 +222,53 @@ class LinguisticFeatureAnnotator():
                             '-outputDirectory', self.tmp])
         ftext = open(self.corpusList[corpusName])
         fanno = open(os.path.join(self.tmp, corpusName+'.conll'))
-
+        fout = open(output, 'w')
         # Extract features on CONLL format
-        words, lamma, pos, dep, head = [], [], [], [], []
+        sent_num = 0
+        words, lamma, pos, ner, dep = [], [], [], [], []
+        head_word, head_lamma, head_pos = [], [], []
         tokens = []
         linguisticFeature = []
         for line in fanno.readlines():
             items = line.strip().split('\t')
-            if len(line) == 1: # len(['']) == 1
+            if len(items) == 1: # len(['']) == 1
                 for token in tokens:
                     words.append(token[1])
+                    lamma.append(token[2])
+                    pos.append(token[3])
+                    ner.append(token[4])
+                    dep.append(token[6])
+                    if tag_head_word:
+                        head_word.append(tokens[int(token[5]) - 1][1] if int(token[5]) != 0 else 'ROOT')
+                    if tag_head_lamma:
+                        head_lamma.append(tokens[int(token[5]) - 1][1] if int(token[5]) != 0 else 'ROOT')
+                    if tag_head_pos:
+                        head_pos.append(tokens[int(token[5]) - 1][1] if int(token[5]) != 0 else 'ROOT')
+                lamma_feature, pos_feature, dep_feature, ner_feature = " ".join(lamma), " ".join(pos), " ".join(dep), " ".join(ner)
+                sentence_feature = [lamma_feature, pos_feature, dep_feature, ner_feature]
+                if tag_head_word:
+                    sentence_feature.append(head_word)
+                if tag_head_lamma:
+                    sentence_feature.append(head_lamma)
+                if tag_head_pos:
+                    sentence_feature.append(head_pos)
+                linguisticFeature.append("\t".join(sentence_feature))
+                sent_num += 1
+                words, lamma, pos, ner, dep = [], [], [], [], []
+                head_word, head_lamma, head_pos = [], [], []
+                tokens = []
+            else:
+                tokens.append(items)
+        check_sent_num = 0
+        for line_id, line in enumerate(ftext.readlines()):
+            line = line.strip()
+            fout.write("{}\t{}\n".format(line, linguisticFeature[line_id]))
+            check_sent_num += 1
+        if (check_sent_num != sent_num):
+            print("Sentences Number Mismatch in Converting CONLL to corpus")
+            exit()
+
+
 
 
 

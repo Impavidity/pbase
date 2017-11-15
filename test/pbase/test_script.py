@@ -11,8 +11,8 @@ class TestScript(unittest.TestCase):
         embeddingFilter.extractAverageEmbedding("entity_test")
     def test_LinguisticFeatureAnnotator(self):
         annotator = script.LinguisticFeatureAnnotator("tools")
-        annotator.addCorpus('test', '/u1/p8shi/pycharm/QA_related_subtasks/JointPrediction/data/annotated_fb_entity_test.txt', 0)
-        annotator.annotate('test')
+        annotator.addCorpus('test', '/u1/p8shi/pycharm/QA_related_subtasks/stanford-corenlp-full-2017-06-09/lakers.txt', 0)
+        annotator.annotate('test', '/tmp/annotator/test.final')
 
 
 if __name__=="__main__":
