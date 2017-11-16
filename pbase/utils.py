@@ -1,4 +1,4 @@
-
+import codecs
 
 def reporthook(t):
     """https://github.com/tqdm/tqdm"""
@@ -18,3 +18,7 @@ def reporthook(t):
         t.update((b - last_b[0]) * bsize)
         last_b[0] = b
     return inner
+
+
+def unescaped_str(arg_str):
+    return codecs.decode(str(arg_str), 'unicode_escape')

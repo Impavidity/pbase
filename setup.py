@@ -9,6 +9,6 @@ setup(
     description='framework for deep learning applications',
     url='https://github.com/Impavidity/pbase',
     license='MIT',
-    install_requires=['tqdm', 'numpy', 'collections', 'torch'],
+    install_requires=['tqdm', 'numpy', 'collections', 'torch', 'fuzzywuzzy', 'nltk'],
     packages=find_packages(),
 )
