@@ -36,7 +36,7 @@ class EmbeddingFilter():
             print("You are writing Embedding.txt to {}".format(self.targetEmbeddingPath))
         fout = open(self.targetEmbeddingPath, "w")
         processed = set([])
-        totalVocab = reduce(lambda x, y: x| y, [self.Corpus[key] for key in self.Corpus.keys()])
+        totalVocab = reduce(lambda x, y: x| y, [self.Vocab[key] for key in self.Vocab.keys()])
         for token, embed in self.Embedding.items():
             if lower:
                 token = token.lower()
@@ -108,7 +108,7 @@ class EmbeddingFilter():
             sentences.append(tokens)
             words |= set(tokens)
         self.Corpus[corpusName] = sentences
-        self.Corpus[corpusName] = words
+        self.Vocab[corpusName] = words
 
     def loadEmbedding(self):
         fin = open(self.sourceEmbeddingPath)
