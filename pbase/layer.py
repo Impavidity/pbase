@@ -1,8 +1,12 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+import torch.nn.functional as F
 
-
+class CharEmbedding(nn.Embedding):
+    def forward(self, input):
+        return torch.stack([super(CharEmbedding, self).forward(input[i, :, :])
+                            for i in range(input.size(0))], dim=0)
 
 class MLP(nn.Linear):
     def __init__(self, in_features, out_features, activation=None, dropout=0.0, bias=True):
@@ -56,6 +60,67 @@ class LSTM(nn.LSTM):
         # TODO: it will generate the zero tensor for h0 and c0
         # TODO: If you want to have a different initialization here
         return super(LSTM, self).forward(input, hx)
+
+class SimpleCNN(nn.Module):
+    def __init__(self, num_of_conv, in_channels, out_channels, kernel_size, in_features, out_features, stride=1,
+                 dilation=1, groups=1, bias=True, active_func = F.relu, pooling=F.max_pool1d,
+                 dropout=0.5):
+        """
+
+        :param num_of_conv: Follow kim cnn idea
+        :param kernel_size: if is int type, then make it into list, length equals to num_of_conv
+                     if list type, then check the length of it, should has length of num_of_conv
+        :param out_features: feature size
+        """
+        super(SimpleCNN, self).__init__()
+        if type(kernel_size) == int:
+            kernel_size = [kernel_size]
+        if len(kernel_size) != num_of_conv:
+            print("Number of kernel_size should be same num_of_conv")
+            exit(1)
+
+        self.conv = nn.ModuleList([nn.Conv2d(in_channels=in_channels,
+                                             out_channels=out_channels,
+                                             kernel_size=(k_size, in_features),
+                                             stride=stride,
+                                             padding=(k_size-1, 0),
+                                             dilation=dilation,
+                                             groups=groups,
+                                             bias=bias)
+                                   for k_size in kernel_size])
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(num_of_conv * out_channels, out_features)
+        self.pooling = pooling
+        self.active_func = active_func
+
+    def forward(self, input):
+        if len(input.size()) == 3:
+            input = input.unsqueeze(1)
+        # input = (batch, in_channels, sent_len, word_dim)
+        x = [self.active_func(conv(input)).squeeze(3) for conv in self.conv]
+        # (batch, channel_output, ~=sent_len) * Ks
+        x = [self.pooling(i, i.size(2)).squeeze(2) for i in x] # max-over-time pooling
+        x = torch.cat(x, 1) # (batch, out_channels * Ks)
+        x = self.dropout(x)
+        x = self.fc(x)
+        return x
+
+class CharCNN(SimpleCNN):
+    """
+    Single CNN for char
+    input: Tensor (batch, sent_len, word_len, char_dim)
+    """
+    def forward(self, input):
+        if len(input.size()) == 4:
+            input = input.unsqueeze(2)
+        # input = (batch, sent_len, in_channels, word_len, char_dim)
+        x = torch.stack([super(CharCNN, self).forward(input[i,:,:,:,:])
+                         for i in range(input.size(0))], dim=0)
+        # x = (batch, sent_len, output_feature)
+        return x
+
+
+
 
 class Biaffine(nn.Module):
     def __init__(self, in1_features, in2_features, out_features, bias=(True, True, True)):
