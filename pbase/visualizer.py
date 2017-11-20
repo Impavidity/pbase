@@ -1,14 +1,18 @@
 from collections import defaultdict
 import numpy as np
+from scipy import stats
 import os
+from pandas import DataFrame
 import matplotlib
 if os.environ.get('DISPLAY','') == '':
     print('No display found. Using non-interative Agg backend')
     print("If you import this lib with jupyter, please use \n%matplotlib inline\nbefore importing module")
     matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_style("whitegrid")
 
-class Distribution():
+class KeyInFileDistribution:
     def __init__(self, path, keyIndex, delimiter='\t'):
         self.count = defaultdict(int)
         fin = open(path)
@@ -41,4 +45,33 @@ class Distribution():
         plt.plot(x_span, y_span)
         plt.show()
         return y
+
+class DistributionComparison:
+    def __init__(self, task, metrics, model1, model2, dis1, dis2):
+        self.task = task
+        self.metrics = metrics
+        self.model1 = model1
+        self.model2 = model2
+        self.dis1 = dis1
+        self.dis2 = dis2
+
+    def draw_violin_plot(self):
+        dis = {"model": [self.model1]*len(self.dis1) + [self.model2]*len(self.dis2),
+               self.metrics: self.dis1 + self.dis2,
+               "task": [self.task] * (len(self.dis1) + len(self.dis2))}
+        dis = DataFrame(dis)
+        ax = sns.violinplot(x="task", y=self.metrics, data=dis, hue="model", split=True,
+                            palette="Set2", scale="count", inner="quartile")
+
+    def ks_significance(self):
+        dis1 = np.array(self.dis1)
+        dis2 = np.array(self.dis2)
+        return stats.ks_2samp(dis1, dis2)
+
+    def levene_significance(self):
+        dis1 = np.array(self.dis1)
+        dis2 = np.array(self.dis2)
+        return stats.levene(dis1, dis2)
+
+
 
