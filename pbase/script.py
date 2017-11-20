@@ -2,6 +2,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from functools import reduce
 import subprocess
+from random import randint
 import array
 import torch
 import six
@@ -276,12 +277,53 @@ class LinguisticFeatureAnnotator():
             exit()
 
 class RandomTrainer():
-    def __init__(self, script, random_seed_arg, round_num):
+    def __init__(self, script, random_seed_arg, model_prefix_arg, log_dir, model_dir, round_num):
         self.script = script
         self.random_seed_arg = random_seed_arg
+        self.model_prefix_arg = model_prefix_arg
+        self.log_dir = log_dir
+        self.model_dir = model_dir
         self.round_num = round_num
+        os.makedirs(log_dir, exist_ok=True)
+        os.makedirs(model_dir, exist_ok=True)
 
     def start(self):
+        for i in range(self.round_num):
+            gen_random = randint(0, 65535)
+            print(i, gen_random)
+            with open(os.path.join(self.log_dir, "{}_{}.log".format(i, gen_random)), "w") as handler:
+                subprocess.run(
+                    self.script.split() +
+                    [
+                        self.random_seed_arg, str(gen_random),
+                        self.model_prefix_arg, "{}_{}".format(i, gen_random),
+                    ], stdout=handler)
+
+
+class RandomTester:
+    def __init__(self):
+        self.pipeline = []
+        self.ranges = []
+
+    def add_pipeline(self, script, model_arg, result_parser, log_dir, model_dir, ignore_last):
+        self.pipeline.append((script, model_arg, result_parser, log_dir, model_dir, ignore_last))
+
+    def add_specific_step(self, script):
+        self.pipeline.append((script,))
+
+    def start(self):
+        for x in self.pipeline:
+            if len(x) == 1:
+                self.ranges.append(range(1))
+            else:
+                log_lists = sorted(filter(lambda f: f.endswith('log'), os.listdir(x[4])),
+                                   key=lambda f:int(f.split('_')[0]))
+                if x[-1]:
+                    log_lists = log_lists[:-1]
+
+
+
+
         
 
 
