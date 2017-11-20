@@ -9,7 +9,7 @@ logger = logging.getLogger()
 logger.disabled = True
 tokenizer = TreebankWordTokenizer()
 
-class Entity():
+class Entity:
     def __init__(self):
         pass
 
