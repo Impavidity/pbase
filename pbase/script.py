@@ -1,6 +1,7 @@
 from tqdm import tqdm
 from collections import defaultdict
 from functools import reduce
+import subprocess
 import array
 import torch
 import six
@@ -37,6 +38,7 @@ class EmbeddingFilter():
         fout = open(self.targetEmbeddingPath, "w")
         processed = set([])
         totalVocab = reduce(lambda x, y: x| y, [self.Vocab[key] for key in self.Vocab.keys()])
+        print("Total Vocab : {}".format(len(totalVocab)))
         for token, embed in self.Embedding.items():
             if lower:
                 token = token.lower()
@@ -109,6 +111,7 @@ class EmbeddingFilter():
             words |= set(tokens)
         self.Corpus[corpusName] = sentences
         self.Vocab[corpusName] = words
+        print("Add {} sentences, and {} words".format(len(sentences), len(words)))
 
     def loadEmbedding(self):
         fin = open(self.sourceEmbeddingPath)
@@ -272,6 +275,14 @@ class LinguisticFeatureAnnotator():
             print("Sentences Number Mismatch in Converting CONLL to corpus")
             exit()
 
+class RandomTrainer():
+    def __init__(self, script, random_seed_arg, round_num):
+        self.script = script
+        self.random_seed_arg = random_seed_arg
+        self.round_num = round_num
+
+    def start(self):
+        
 
 
 
