@@ -1,6 +1,7 @@
 from tqdm import tqdm
 from collections import defaultdict
 from functools import reduce
+from itertools import product
 import subprocess
 from random import randint
 import array
@@ -14,7 +15,7 @@ import zipfile
 from .utils import reporthook
 
 
-class EmbeddingFilter():
+class EmbeddingFilter:
     """
     The text source should be separated with tab
     """
@@ -145,7 +146,7 @@ class EmbeddingFilter():
         for key in self.Corpus.keys():
             self.clearCorpus(key)
 
-class LinguisticFeatureAnnotator():
+class LinguisticFeatureAnnotator:
     """
     Need to download stanford Core NLP
     one sentence one line, tokenized beforehand
@@ -276,7 +277,7 @@ class LinguisticFeatureAnnotator():
             print("Sentences Number Mismatch in Converting CONLL to corpus")
             exit()
 
-class RandomTrainer():
+class RandomTrainer:
     def __init__(self, script, random_seed_arg, model_prefix_arg, log_dir, model_dir, round_num):
         self.script = script
         self.random_seed_arg = random_seed_arg
@@ -301,9 +302,11 @@ class RandomTrainer():
 
 
 class RandomTester:
-    def __init__(self):
+    def __init__(self, log_dir):
         self.pipeline = []
         self.ranges = []
+        self.log_dir = log_dir
+        os.makedirs(log_dir, exist_ok=True)
 
     def add_pipeline(self, script, model_arg, result_parser, log_dir, model_dir, ignore_last):
         self.pipeline.append((script, model_arg, result_parser, log_dir, model_dir, ignore_last))
@@ -314,12 +317,35 @@ class RandomTester:
     def start(self):
         for x in self.pipeline:
             if len(x) == 1:
-                self.ranges.append(range(1))
+                self.ranges.append([x[0]])
             else:
-                log_lists = sorted(filter(lambda f: f.endswith('log'), os.listdir(x[4])),
+                model_lists = sorted(filter(lambda f: f.endswith('pt'), os.listdir(x[4])),
                                    key=lambda f:int(f.split('_')[0]))
                 if x[-1]:
-                    log_lists = log_lists[:-1]
+                    model_lists = model_lists[:-1]
+                scripts = []
+                for model_file in model_lists:
+                    script = "{} {} {}".format(x[0], x[1], os.path.join(x[4], model_file))
+                    scripts.append(script)
+                self.ranges.append(scripts)
+        for idx, pipeline in tqdm(enumerate(product(*self.ranges))):
+            # Simple version of pipeline
+            # TODO: make it save time
+            with open(os.path.join(self.log_dir, "{}.log".format(idx)), 'a+') as handler:
+                for cmd in pipeline:
+                    subprocess.run(cmd.split(), stdout=handler)
+
+    def parse_results(self, parser):
+        results = []
+        for file in os.listdir(self.log_dir):
+            if file.endswith('log'):
+                text = open(os.path.join(self.log_dir, file)).readlines()
+                results.append(parser(text))
+        return results
+
+
+
+
 
 
 
