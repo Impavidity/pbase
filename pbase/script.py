@@ -288,17 +288,24 @@ class RandomTrainer:
         os.makedirs(log_dir, exist_ok=True)
         os.makedirs(model_dir, exist_ok=True)
 
-    def start(self):
+    def start(self, process_num=1):
+        process_list = []
         for i in range(self.round_num):
             gen_random = randint(0, 65535)
             print(i, gen_random)
             with open(os.path.join(self.log_dir, "{}_{}.log".format(i, gen_random)), "w") as handler:
-                subprocess.run(
+                if len(process_list) >= process_num:
+                    exit_codes = [p.wait() for p in process_list]
+                    process_list = []
+                proc = subprocess.Popen(
                     self.script.split() +
                     [
                         self.random_seed_arg, str(gen_random),
                         self.model_prefix_arg, "{}_{}".format(i, gen_random),
                     ], stdout=handler)
+                process_list.append(proc)
+
+                
 
 
 class RandomTester:
@@ -314,7 +321,7 @@ class RandomTester:
     def add_specific_step(self, script):
         self.pipeline.append((script,))
 
-    def start(self):
+    def start(self, process_num=1):
         for x in self.pipeline:
             if len(x) == 1:
                 self.ranges.append([x[0]])

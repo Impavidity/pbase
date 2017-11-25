@@ -10,9 +10,9 @@ import uuid
 
 
 class TrainAPP:
-    def __init__(self, arg_parser, model, fields, include_test, unknown_init, optimizer, criterion, evaluator,
+    def __init__(self, args, model, fields, include_test, unknown_init, optimizer, criterion, evaluator,
                  metrics_comparison, log_printer):
-        self.args = arg_parser.get_args()
+        self.args = args
         torch.manual_seed(self.args.seed)
         torch.backends.cudnn.deterministic = True
         if not self.args.cuda:
@@ -158,7 +158,7 @@ class TestAPP:
 
 class ArgParser:
     def __init__(self, description, gpu=0, batch_size=32, seed=3435,
-                 dev_every=300, log_every=30, patience=5, save_path='saves'):
+                 dev_every=300, log_every=30, patience=5, save_path='saves', result_path='results'):
         self.parser = ArgumentParser(description=description)
         self.parser.add_argument('--no_cuda', action='store_false', dest='cuda')
         self.parser.add_argument('--gpu', type=int, default=gpu)
@@ -171,6 +171,9 @@ class ArgParser:
         self.parser.add_argument('--prefix', type=str, default="exp")
         # Tester
         self.parser.add_argument('--trained_model', type=str, default='')
+        self.parser.add_argument('--result_path', type=str, default=result_path)
+        self.parser.add_argument('--output_valid', type=str, default='valid.txt')
+        self.parser.add_argument('--output_test', type=str, default='test.txt')
 
 
 
