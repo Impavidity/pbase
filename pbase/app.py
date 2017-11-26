@@ -10,7 +10,7 @@ import uuid
 
 
 class TrainAPP:
-    def __init__(self, args, model, fields, include_test, unknown_init, optimizer, criterion, evaluator,
+    def __init__(self, args, model, fields, include_test, optimizer, criterion, evaluator,
                  metrics_comparison, log_printer,
                  batch_size_fn_train = lambda new, count, sofar: count,
                  batch_size_fn_valid = lambda new, count, sofar: count,
@@ -41,11 +41,14 @@ class TrainAPP:
                 else:
                     field[1].build_vocab(train, valid)
         self.train_iter = data.Iterator(train, batch_size=self.args.batch_size, device=self.args.gpu,
-                                        batch_size_fn=batch_size_fn_train, train=True, repeat=False, sort=False, shuffle=train_shuffle)
+                                        batch_size_fn=batch_size_fn_train, train=True, repeat=False, sort=False,
+                                        shuffle=train_shuffle, sort_within_batch=False)
         self.valid_iter = data.Iterator(valid, batch_size=self.args.batch_size, device=self.args.gpu,
-                                        batch_size_fn=batch_size_fn_valid, train=False, repeat=False, sort=False, shuffle=False)
+                                        batch_size_fn=batch_size_fn_valid, train=False, repeat=False, sort=False,
+                                        shuffle=False, sort_within_batch=False)
         self.test_iter = data.Iterator(test, batch_size=self.args.batch_size, device=self.args.gpu,
-                                       batch_size_fn=batch_size_fn_test, train=False, repeat=False, sort=False, shuffle=False)
+                                       batch_size_fn=batch_size_fn_test, train=False, repeat=False, sort=False,
+                                       shuffle=False, sort_within_batch=False)
 
 
         config = self.args
@@ -54,7 +57,6 @@ class TrainAPP:
             self.model.cuda()
             print("Shift model to GPU")
         self.parameter = filter(lambda p: p.requires_grad, model.parameters())
-        self.unknown_init = unknown_init
         self.optimizer = optimizer
         self.criterion = criterion
         self.evaluator = evaluator
@@ -82,7 +84,8 @@ class TrainAPP:
                 self.model.train()
                 self.optimizer.zero_grad()
                 output = self.model(batch)
-                metrics = self.evaluator(output, batch)
+                # We generate metrics for each batch, not all batches so far
+                metrics = self.evaluator((output, batch))
                 loss = self.criterion(output, batch)
                 loss.backward()
                 self.optimizer.step()
@@ -96,7 +99,7 @@ class TrainAPP:
                         valid_result.append((valid_output, valid_batch))
                     valid_metrics = self.evaluator(valid_result)
                     self.log_printer(valid_metrics)
-                    if self.metrics_comparison(metrics, best_metrics):
+                    if self.metrics_comparison(valid_metrics, best_metrics):
                         iters_not_improved = 0
                         best_metrics = metrics
                         torch.save(self.model, self.snapshot_path)
