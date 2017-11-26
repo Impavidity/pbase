@@ -344,25 +344,3 @@ class RandomTester:
                 text = open(os.path.join(self.log_dir, file)).readlines()
                 results.append(parser(text))
         return results
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-

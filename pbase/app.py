@@ -10,9 +10,13 @@ import uuid
 
 
 class TrainAPP:
-    def __init__(self, arg_parser, model, fields, include_test, unknown_init, optimizer, criterion, evaluator,
-                 metrics_comparison, log_printer):
-        self.args = arg_parser.get_args()
+    def __init__(self, args, model, fields, include_test, unknown_init, optimizer, criterion, evaluator,
+                 metrics_comparison, log_printer,
+                 batch_size_fn_train = lambda new, count, sofar: count,
+                 batch_size_fn_valid = lambda new, count, sofar: count,
+                 batch_size_fn_test = lambda new, count, sofar: count,
+                 train_shuffle=True):
+        self.args = args
         torch.manual_seed(self.args.seed)
         torch.backends.cudnn.deterministic = True
         if not self.args.cuda:
@@ -36,12 +40,12 @@ class TrainAPP:
                     field[1].build_vocab(train, valid, test)
                 else:
                     field[1].build_vocab(train, valid)
-        self.train_iter = data.Iterator(train, batch_size=self.args.batch_size, device=self.args.gpu, train=True,
-                                        repeat=False, sort=False, shuffle=True)
-        self.valid_iter = data.Iterator(valid, batch_size=self.args.batch_size, device=self.args.gpu, train=False,
-                                        repeat=False, sort=False, shuffle=False)
-        self.test_iter = data.Iterator(test, batch_size=self.args.batch_size, device=self.args.gpu, train=False,
-                                       repeat=False, sort=False, shuffle=False)
+        self.train_iter = data.Iterator(train, batch_size=self.args.batch_size, device=self.args.gpu,
+                                        batch_size_fn=batch_size_fn_train, train=True, repeat=False, sort=False, shuffle=train_shuffle)
+        self.valid_iter = data.Iterator(valid, batch_size=self.args.batch_size, device=self.args.gpu,
+                                        batch_size_fn=batch_size_fn_valid, train=False, repeat=False, sort=False, shuffle=False)
+        self.test_iter = data.Iterator(test, batch_size=self.args.batch_size, device=self.args.gpu,
+                                       batch_size_fn=batch_size_fn_test, train=False, repeat=False, sort=False, shuffle=False)
 
 
         config = self.args
@@ -158,7 +162,9 @@ class TestAPP:
 
 class ArgParser:
     def __init__(self, description, gpu=0, batch_size=32, seed=3435,
-                 dev_every=300, log_every=30, patience=5, save_path='saves'):
+                 dev_every=300, log_every=30, patience=5,
+                 dataset_path='data', train_txt='train.txt', valid_txt='valid.txt', test_txt='test.txt',
+                 save_path='saves', result_path='results'):
         self.parser = ArgumentParser(description=description)
         self.parser.add_argument('--no_cuda', action='store_false', dest='cuda')
         self.parser.add_argument('--gpu', type=int, default=gpu)
@@ -167,10 +173,17 @@ class ArgParser:
         self.parser.add_argument('--valid_every', type=int, default=dev_every)
         self.parser.add_argument('--log_every', type=int, default=log_every)
         self.parser.add_argument('--patience', type=int, default=patience)
-        self.parser.add_argument('--save_path', type=int, default=save_path)
+        self.parser.add_argument('--dataset_path', type=str, default=dataset_path)
+        self.parser.add_argument('--train_txt', type=str, default=train_txt)
+        self.parser.add_argument('--valid_txt', type=str, default=valid_txt)
+        self.parser.add_argument('--test_txt', type=str, default=test_txt)
+        self.parser.add_argument('--save_path', type=str, default=save_path)
         self.parser.add_argument('--prefix', type=str, default="exp")
         # Tester
         self.parser.add_argument('--trained_model', type=str, default='')
+        self.parser.add_argument('--result_path', type=str, default=result_path)
+        self.parser.add_argument('--output_valid', type=str, default='valid.txt')
+        self.parser.add_argument('--output_test', type=str, default='test.txt')
 
 
 
