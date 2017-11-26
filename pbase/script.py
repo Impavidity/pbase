@@ -308,8 +308,8 @@ class RandomTester:
         self.log_dir = log_dir
         os.makedirs(log_dir, exist_ok=True)
 
-    def add_pipeline(self, script, model_arg, result_parser, log_dir, model_dir, ignore_last):
-        self.pipeline.append((script, model_arg, result_parser, log_dir, model_dir, ignore_last))
+    def add_pipeline(self, script, model_arg, result_parser, log_dir, model_dir, ignore_last, limit=None):
+        self.pipeline.append((script, model_arg, result_parser, log_dir, model_dir, ignore_last, limit))
 
     def add_specific_step(self, script):
         self.pipeline.append((script,))
@@ -321,8 +321,10 @@ class RandomTester:
             else:
                 model_lists = sorted(filter(lambda f: f.endswith('pt'), os.listdir(x[4])),
                                    key=lambda f:int(f.split('_')[0]))
-                if x[-1]:
+                if x[-2]:
                     model_lists = model_lists[:-1]
+                if x[-1] is not None:
+                    model_lists = model_lists[:x[-1]]
                 scripts = []
                 for model_file in model_lists:
                     script = "{} {} {}".format(x[0], x[1], os.path.join(x[4], model_file))
