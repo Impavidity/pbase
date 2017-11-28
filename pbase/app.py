@@ -10,8 +10,7 @@ import uuid
 
 
 class TrainAPP:
-    def __init__(self, args, model, fields, include_test, optimizer, criterion, evaluator,
-                 metrics_comparison, log_printer,
+    def __init__(self, args,  fields, include_test,
                  batch_size_fn_train = lambda new, count, sofar: count,
                  batch_size_fn_valid = lambda new, count, sofar: count,
                  batch_size_fn_test = lambda new, count, sofar: count,
@@ -35,6 +34,7 @@ class TrainAPP:
                                    train=self.args.train_txt, validation=self.args.valid_txt, test=self.args.test_txt,
                                    format='TSV', fields=self.fields)
         for field, use_test in zip(self.fields, include_test):
+            setattr(self, field[0], field[1])
             if field[1].use_vocab:
                 if use_test:
                     field[1].build_vocab(train, valid, test)
@@ -49,15 +49,17 @@ class TrainAPP:
         self.test_iter = data.Iterator(test, batch_size=self.args.batch_size, device=self.args.gpu,
                                        batch_size_fn=batch_size_fn_test, train=False, repeat=False, sort=False,
                                        shuffle=False, sort_within_batch=False)
+        self.config = self.args
 
 
-        config = self.args
-        self.model = model(config)
+    def prepare(self, model, optimizer, criterion, evaluator,
+                 metrics_comparison, log_printer):
+        self.model = model(self.config)
         if self.args.cuda:
             self.model.cuda()
             print("Shift model to GPU")
-        self.parameter = filter(lambda p: p.requires_grad, model.parameters())
-        self.optimizer = optimizer
+        self.parameter = filter(lambda p: p.requires_grad, self.model.parameters())
+        self.optimizer = optimizer(self.parameter, self.config)
         self.criterion = criterion
         self.evaluator = evaluator
         self.metrics_comparison = metrics_comparison

@@ -21,7 +21,7 @@ class EmbeddingFilter:
     """
     def __init__(self, sourceEmbeddingPath= None):
         if sourceEmbeddingPath == None:
-            print("Please Specify the source embedding path")
+            print("You are not specify any Embedding Path")
             return
         self.sourceEmbeddingPath = sourceEmbeddingPath
         self.dim = 0
@@ -49,14 +49,15 @@ class EmbeddingFilter:
                 processed.add(token)
         fout.close()
 
-    def toBinary(self, lower=True):
+    def toBinary(self, lower=True, toEmbedFirst=True):
         if self.targetBinaryPath == None:
             print("Please Specify Target Binary Path")
             return
         else:
             print("You are writing Embedding.pt to {}".format(self.targetBinaryPath))
         itos, vectors, dim = [], array.array('d'), None
-        self.toEmbedding(lower=lower)
+        if toEmbedFirst:
+            self.toEmbedding(lower=lower)
         with open(self.targetEmbeddingPath, 'rb') as handler:
             lines = [line for line in handler]
         print("Loading vectors from {}".format(self.targetEmbeddingPath))
