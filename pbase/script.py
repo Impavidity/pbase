@@ -144,7 +144,7 @@ class EmbeddingFilter:
         self.Vocab.pop(corpusName, None)
 
     def clearAll(self):
-        for key in self.Corpus.keys():
+        for key in list(self.Corpus.keys()):
             self.clearCorpus(key)
 
 class LinguisticFeatureAnnotator:
