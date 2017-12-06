@@ -71,13 +71,15 @@ def MaxSpanningTree(parse_probs, length, tokens_to_keep, ensure_tree=True):
     """
     adopted from : https://github.com/jcyk/Dynet-Biaffine-dependency-parser/blob/master/lib/utils.py
     """
+    # We need a virtual node of ROOT for each sentence in the input
     if ensure_tree:
         I = np.eye(len(tokens_to_keep))
         parse_probs = parse_probs * tokens_to_keep * (1-I)
         parse_preds = np.argmax(parse_probs, axis=1)
         tokens = np.arange(1, length)
         # np.where() returns (array([ ... ]), )
-        # So get the first part, and then add 1, to get the real index (tokens starts from 1, index is 0)
+        # So get the first part, and then add 1, to get the real index (tokens starts from 1, in where, it will
+        # start from 0, and then add 1 to make it start at 1 to match tokens)
         roots = np.where(parse_preds[tokens] == 0)[0] + 1
         # ensure at least one root
         if len(roots) < 1:
@@ -149,11 +151,35 @@ def MaxSpanningTree(parse_probs, length, tokens_to_keep, ensure_tree=True):
         parse_preds = np.argmax(parse_probs, axis=1)
         return parse_preds
 
-def rel_argmax(rel_probs, length, ensure_tree=True):
+def rel_argmax(rel_probs, length, ROOT, UNK=0, PAD=1, ensure_tree=True):
     """
     adopted from https://github.com/jcyk/Dynet-Biaffine-dependency-parser/blob/master/lib/utils.py
     """
+    # ROOT is the vocab ID of "ROOT" label
     if ensure_tree:
-        pass
+        # Change the probability of PAD and UNK as zero
+        rel_probs[:,UNK] = 0
+        rel_probs[:,PAD] = 0
+        # Because we have ROOT virtual node in each sentence, so we just start from 1
+        tokens = np.arange(1, length)
+        rel_preds = np.argmax(rel_probs, axis=1)
+        roots = np.where(rel_preds[tokens] == ROOT)[0] + 1
+        if len(roots) < 1:
+            rel_preds[1+np.argmax(rel_probs[tokens, ROOT])] = ROOT
+        elif len(roots) > 1:
+            root_probs = rel_probs[roots, ROOT]
+            rel_probs[roots, ROOT] = 0
+            new_rel_preds = np.argmax(rel_probs[roots], axis=1)
+            new_rel_probs = rel_probs[roots, new_rel_preds] / root_probs
+            new_root = roots[np.argmin(new_rel_probs)]
+            rel_preds[roots] = new_rel_preds
+            rel_preds[new_root] = ROOT
+        return rel_preds
+    else:
+        rel_probs[:,UNK] = 0
+        rel_probs[:,PAD] = 0
+        rel_preds = np.argmax(rel_probs, axis=1)
+        return rel_preds
+
 
 

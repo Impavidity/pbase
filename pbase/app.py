@@ -33,13 +33,13 @@ class TrainAPP:
         train, valid, test = data.TabularDataset.splits(path=self.args.dataset_path,
                                    train=self.args.train_txt, validation=self.args.valid_txt, test=self.args.test_txt,
                                    format='TSV', fields=self.fields)
-        for field, use_test in zip(self.fields, include_test):
-            setattr(self, field[0], field[1])
-            if field[1].use_vocab:
-                if use_test:
-                    field[1].build_vocab(train, valid, test)
+        for i in range(len(self.fields)):
+            setattr(self, self.fields[i][0], self.fields[i][1])
+            if self.fields[i][1].use_vocab:
+                if include_test[i]:
+                    self.fields[i][1].build_vocab(train, valid, test)
                 else:
-                    field[1].build_vocab(train, valid)
+                    self.fields[i][1].build_vocab(train, valid)
         self.train_iter = data.Iterator(train, batch_size=self.args.batch_size, device=self.args.gpu,
                                         batch_size_fn=batch_size_fn_train, train=True, repeat=False, sort=False,
                                         shuffle=train_shuffle, sort_within_batch=False)
@@ -56,7 +56,7 @@ class TrainAPP:
                  metrics_comparison, log_printer):
         self.model = model(self.config)
         if self.args.cuda:
-            self.model.cuda()
+            self.model.cuda(self.args.gpu)
             print("Shift model to GPU")
         self.parameter = filter(lambda p: p.requires_grad, self.model.parameters())
         self.optimizer = optimizer(self.parameter, self.config)
@@ -74,6 +74,7 @@ class TrainAPP:
         iterations = 0
         best_metrics = None
         iters_not_improved = 0
+        batch_num = len(self.train_iter)
         while True:
             if early_stop:
                 print("Early Stoping")
@@ -87,7 +88,7 @@ class TrainAPP:
                 self.optimizer.zero_grad()
                 output = self.model(batch)
                 # We generate metrics for each batch, not all batches so far
-                metrics = self.evaluator((output, batch))
+                metrics = self.evaluator("train", (output, batch))
                 loss = self.criterion(output, batch)
                 loss.backward()
                 self.optimizer.step()
@@ -99,11 +100,11 @@ class TrainAPP:
                     for valid_batch_idx, valid_batch in enumerate(self.valid_iter):
                         valid_output = self.model(valid_batch)
                         valid_result.append((valid_output, valid_batch))
-                    valid_metrics = self.evaluator(valid_result)
-                    self.log_printer(valid_metrics)
+                    valid_metrics = self.evaluator("valid", valid_result)
+                    self.log_printer("valid", valid_metrics)
                     if self.metrics_comparison(valid_metrics, best_metrics):
                         iters_not_improved = 0
-                        best_metrics = metrics
+                        best_metrics = valid_metrics
                         torch.save(self.model, self.snapshot_path)
                     else:
                         iters_not_improved += 1
@@ -112,7 +113,7 @@ class TrainAPP:
                             break
 
                 if iterations % self.args.log_every == 0:
-                    self.log_printer(metrics)
+                    self.log_printer("train", epoch=epoch, iters=batch_idx/batch_num, metrics=metrics)
 
 class TestAPP:
     def __init__(self, arg_parser, fields, include_test, evaluator, log_printer):
