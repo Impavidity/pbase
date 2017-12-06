@@ -21,8 +21,6 @@ class MLP(nn.Linear):
         self._dropout_ratio = dropout
         if dropout > 0:
             self._dropout = nn.Dropout(p=self._dropout_ratio)
-        else:
-            self._dropout = lambda x: x
 
     def forward(self, x):
         size = x.size()
@@ -32,7 +30,10 @@ class MLP(nn.Linear):
             y = y.view(size[0:-1] + (-1,))
         else:
             y = super(MLP, self).forward(x)
-        return self._dropout(self._activate(y))
+        if self._dropout_ratio > 0:
+            return self._dropout(self._activate(y))
+        else:
+            return self._activate(y)
 
 class MLPs(nn.ModuleList):
     def __init__(self, layers):
