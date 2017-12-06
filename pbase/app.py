@@ -14,7 +14,8 @@ class TrainAPP:
                  batch_size_fn_train = lambda new, count, sofar: count,
                  batch_size_fn_valid = lambda new, count, sofar: count,
                  batch_size_fn_test = lambda new, count, sofar: count,
-                 train_shuffle=True):
+                 train_shuffle=True,
+                 sort_within_batch=False):
         self.args = args
         torch.manual_seed(self.args.seed)
         torch.backends.cudnn.deterministic = True
@@ -42,13 +43,13 @@ class TrainAPP:
                     self.fields[i][1].build_vocab(train, valid)
         self.train_iter = data.Iterator(train, batch_size=self.args.batch_size, device=self.args.gpu,
                                         batch_size_fn=batch_size_fn_train, train=True, repeat=False, sort=False,
-                                        shuffle=train_shuffle, sort_within_batch=False)
+                                        shuffle=train_shuffle, sort_within_batch=sort_within_batch)
         self.valid_iter = data.Iterator(valid, batch_size=self.args.batch_size, device=self.args.gpu,
                                         batch_size_fn=batch_size_fn_valid, train=False, repeat=False, sort=False,
-                                        shuffle=False, sort_within_batch=False)
+                                        shuffle=False, sort_within_batch=sort_within_batch)
         self.test_iter = data.Iterator(test, batch_size=self.args.batch_size, device=self.args.gpu,
                                        batch_size_fn=batch_size_fn_test, train=False, repeat=False, sort=False,
-                                       shuffle=False, sort_within_batch=False)
+                                       shuffle=False, sort_within_batch=sort_within_batch)
         self.config = self.args
 
 
@@ -116,8 +117,11 @@ class TrainAPP:
                     self.log_printer("train", epoch=epoch, iters=batch_idx/batch_num, metrics=metrics)
 
 class TestAPP:
-    def __init__(self, arg_parser, fields, include_test, evaluator, log_printer):
-        self.args = arg_parser.get_args()
+    def __init__(self, args, fields, include_test,
+                 batch_size_fn_train=lambda new, count, sofar: count,
+                 batch_size_fn_valid=lambda new, count, sofar: count,
+                 batch_size_fn_test=lambda new, count, sofar: count):
+        self.args = args
         if not self.args.trained_model:
             print("Error: You need to provide a option 'trained_model' to load the model")
             sys.exit(1)
@@ -127,27 +131,33 @@ class TestAPP:
                                                         train=self.args.train_txt, validation=self.args.valid_txt,
                                                         test=self.args.test_txt,
                                                         format='TSV', fields=self.fields)
-        for field, use_test in zip(self.fields, include_test):
-            if field[1].use_vocab:
-                if use_test:
-                    field[1].build_vocab(train, valid, test)
+        for i in range(len(self.fields)):
+            setattr(self, self.fields[i][0], self.fields[i][1])
+            if self.fields[i][1].use_vocab:
+                if include_test[i]:
+                    self.fields[i][1].build_vocab(train, valid, test)
                 else:
-                    field[1].build_vocab(train, valid)
-        self.train_iter = data.Iterator(train, batch_size=self.args.batch_size, device=self.args.gpu, train=True,
-                                        repeat=False, sort=False, shuffle=True)
-        self.valid_iter = data.Iterator(valid, batch_size=self.args.batch_size, device=self.args.gpu, train=False,
-                                        repeat=False, sort=False, shuffle=False)
-        self.test_iter = data.Iterator(test, batch_size=self.args.batch_size, device=self.args.gpu, train=False,
-                                       repeat=False, sort=False, shuffle=False)
+                    self.fields[i][1].build_vocab(train, valid)
+        self.train_iter = data.Iterator(train, batch_size=self.args.batch_size, device=self.args.gpu,
+                                        batch_size_fn=batch_size_fn_train, train=True, repeat=False, sort=False,
+                                        shuffle=False, sort_within_batch=False)
+        self.valid_iter = data.Iterator(valid, batch_size=self.args.batch_size, device=self.args.gpu,
+                                        batch_size_fn=batch_size_fn_valid, train=False, repeat=False, sort=False,
+                                        shuffle=False, sort_within_batch=False)
+        self.test_iter = data.Iterator(test, batch_size=self.args.batch_size, device=self.args.gpu,
+                                       batch_size_fn=batch_size_fn_test, train=False, repeat=False, sort=False,
+                                       shuffle=False, sort_within_batch=False)
 
         if self.args.cuda:
             self.model = torch.load(self.args.trained_model, map_location=lambda storage,
                                                                                  location: storage.cuda(self.args.gpu))
         else:
             self.model = torch.load(self.args.trained_model, map_location=lambda storage, location: storage)
+
+
+    def prepare(self, evaluator, log_printer):
         self.evaluator = evaluator
         self.log_printer = log_printer
-
 
     def predict(self, dataset_iter, dataset_name):
         print("Dataset : {}".format(dataset_name))
@@ -157,8 +167,8 @@ class TestAPP:
         for test_batch_idx, test_batch in enumerate(dataset_iter):
             results = self.model(test_batch)
             test_result.append((results, test_batch))
-        test_metrics = self.evaluator(test_result)
-        self.log_printer(test_metrics)
+        test_metrics = self.evaluator(dataset_name, test_result)
+        self.log_printer(dataset_name, test_metrics)
 
 
     def test(self):
