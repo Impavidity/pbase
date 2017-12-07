@@ -69,6 +69,7 @@ class TrainAPP:
         self.patience = self.args.patience # TODO: calculate the patience
         self.log_printer = log_printer
 
+
     def train(self):
         early_stop = False
         epoch = 0
@@ -82,7 +83,7 @@ class TrainAPP:
                 break
             epoch += 1
             self.train_iter.init_epoch()
-
+            self.optimizer.schedule()
             for batch_idx, batch in enumerate(self.train_iter):
                 iterations += 1
                 self.model.train()
@@ -102,11 +103,12 @@ class TrainAPP:
                         valid_output = self.model(valid_batch)
                         valid_result.append((valid_output, valid_batch))
                     valid_metrics = self.evaluator("valid", valid_result)
-                    self.log_printer("valid", valid_metrics)
+                    self.log_printer("valid", metrics=valid_metrics, loss=loss)
                     if self.metrics_comparison(valid_metrics, best_metrics):
                         iters_not_improved = 0
                         best_metrics = valid_metrics
                         torch.save(self.model, self.snapshot_path)
+                        print("Saving model to {}".format(self.snapshot_path))
                     else:
                         iters_not_improved += 1
                         if iters_not_improved >= self.patience:
@@ -114,7 +116,9 @@ class TrainAPP:
                             break
 
                 if iterations % self.args.log_every == 0:
-                    self.log_printer("train", epoch=epoch, iters=batch_idx/batch_num, metrics=metrics)
+                    self.log_printer("train", epoch=epoch, iters=batch_idx/batch_num, metrics=metrics, loss=loss)
+
+
 
 class TestAPP:
     def __init__(self, args, fields, include_test,
@@ -155,9 +159,10 @@ class TestAPP:
             self.model = torch.load(self.args.trained_model, map_location=lambda storage, location: storage)
 
 
-    def prepare(self, evaluator, log_printer):
+    def prepare(self, evaluator, log_printer, output_parser=None):
         self.evaluator = evaluator
         self.log_printer = log_printer
+        self.output_parser = output_parser
 
     def predict(self, dataset_iter, dataset_name):
         print("Dataset : {}".format(dataset_name))
@@ -169,6 +174,10 @@ class TestAPP:
             test_result.append((results, test_batch))
         test_metrics = self.evaluator(dataset_name, test_result)
         self.log_printer(dataset_name, test_metrics)
+        if self.output_parser != None:
+            os.makedirs(self.args.result_path, exist_ok=True)
+            self.output_parser(dataset_name, test_result)
+
 
 
     def test(self):
