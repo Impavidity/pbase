@@ -3,6 +3,13 @@ import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
 
+class Embedding(nn.Embedding):
+    def reset_parameters(self):
+        print("Use uniform to initialize the embedding")
+        self.weight.data.uniform_(-0.05, 0.05)
+        if self.padding_idx is not None:
+            self.weight.data[self.padding_idx].fill_(0)
+
 class CharEmbedding(nn.Embedding):
     def forward(self, input):
         return torch.stack([super(CharEmbedding, self).forward(input[i, :, :])
@@ -54,7 +61,7 @@ class LSTM(nn.LSTM):
                 for i in range(4):
                     nn.init.orthogonal(self.__getattr__(name)[self.hidden_size*i:self.hidden_size*(i+1),:])
             if "bias" in name:
-                nn.init.constant(self.__getattr__(name), -1)
+                nn.init.constant(self.__getattr__(name), 0)
 
     def forward(self, input, hx=None):
         # TODO: actually RNN has handled with situation when hx==None
