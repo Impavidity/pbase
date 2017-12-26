@@ -10,7 +10,7 @@ import uuid
 
 
 class TrainAPP:
-    def __init__(self, args,  fields, include_test,
+    def __init__(self, args,  fields, include_test, build_vocab_params=None,
                  batch_size_fn_train = lambda new, count, sofar: count,
                  batch_size_fn_valid = lambda new, count, sofar: count,
                  batch_size_fn_test = lambda new, count, sofar: count,
@@ -34,13 +34,15 @@ class TrainAPP:
         train, valid, test = data.TabularDataset.splits(path=self.args.dataset_path,
                                    train=self.args.train_txt, validation=self.args.valid_txt, test=self.args.test_txt,
                                    format='TSV', fields=self.fields)
+        if build_vocab_params ==None:
+            build_vocab_params = [{}] * len(fields)
         for i in range(len(self.fields)):
             setattr(self, self.fields[i][0], self.fields[i][1])
             if self.fields[i][1].use_vocab:
                 if include_test[i]:
-                    self.fields[i][1].build_vocab(train, valid, test)
+                    self.fields[i][1].build_vocab(train, valid, test, build_vocab_params[i])
                 else:
-                    self.fields[i][1].build_vocab(train, valid)
+                    self.fields[i][1].build_vocab(train, valid, build_vocab_params[i])
         self.train_iter = data.Iterator(train, batch_size=self.args.batch_size, device=self.args.gpu,
                                         batch_size_fn=batch_size_fn_train, train=True, repeat=False, sort=False,
                                         shuffle=train_shuffle, sort_within_batch=sort_within_batch)
@@ -99,11 +101,14 @@ class TrainAPP:
                     self.model.eval()
                     self.valid_iter.init_epoch()
                     valid_result = []
+                    valid_loss = 0
                     for valid_batch_idx, valid_batch in enumerate(self.valid_iter):
                         valid_output = self.model(valid_batch)
                         valid_result.append((valid_output, valid_batch))
+                        valid_loss += self.criterion(valid_output, valid_batch).data[0]
                     valid_metrics = self.evaluator("valid", valid_result)
-                    self.log_printer("valid", metrics=valid_metrics, loss=loss)
+                    self.log_printer("valid", epoch=epoch, iters="{}/{}".format(batch_idx, batch_num),
+                                     metrics=valid_metrics, loss=valid_loss)
                     if self.metrics_comparison(valid_metrics, best_metrics):
                         iters_not_improved = 0
                         best_metrics = valid_metrics
@@ -116,12 +121,12 @@ class TrainAPP:
                             break
 
                 if iterations % self.args.log_every == 0:
-                    self.log_printer("train", epoch=epoch, iters=batch_idx/batch_num, metrics=metrics, loss=loss)
+                    self.log_printer("train", epoch=epoch, iters="{}/{}".format(batch_idx, batch_num), metrics=metrics, loss=loss.data[0])
 
 
 
 class TestAPP:
-    def __init__(self, args, fields, include_test,
+    def __init__(self, args, fields, include_test, build_vocab_params=None,
                  batch_size_fn_train=lambda new, count, sofar: count,
                  batch_size_fn_valid=lambda new, count, sofar: count,
                  batch_size_fn_test=lambda new, count, sofar: count):
@@ -135,13 +140,15 @@ class TestAPP:
                                                         train=self.args.train_txt, validation=self.args.valid_txt,
                                                         test=self.args.test_txt,
                                                         format='TSV', fields=self.fields)
+        if build_vocab_params ==None:
+            build_vocab_params = [{}] * len(fields)
         for i in range(len(self.fields)):
             setattr(self, self.fields[i][0], self.fields[i][1])
             if self.fields[i][1].use_vocab:
                 if include_test[i]:
-                    self.fields[i][1].build_vocab(train, valid, test)
+                    self.fields[i][1].build_vocab(train, valid, test, build_vocab_params[i])
                 else:
-                    self.fields[i][1].build_vocab(train, valid)
+                    self.fields[i][1].build_vocab(train, valid, build_vocab_params[i])
         self.train_iter = data.Iterator(train, batch_size=self.args.batch_size, device=self.args.gpu,
                                         batch_size_fn=batch_size_fn_train, train=True, repeat=False, sort=False,
                                         shuffle=False, sort_within_batch=False)
@@ -173,7 +180,7 @@ class TestAPP:
             results = self.model(test_batch)
             test_result.append((results, test_batch))
         test_metrics = self.evaluator(dataset_name, test_result)
-        self.log_printer(dataset_name, test_metrics)
+        self.log_printer(dataset_name, metrics=test_metrics, loss=None)
         if self.output_parser != None:
             os.makedirs(self.args.result_path, exist_ok=True)
             self.output_parser(dataset_name, test_result)
