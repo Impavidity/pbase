@@ -134,6 +134,18 @@ class TestAPP:
         if not self.args.trained_model:
             print("Error: You need to provide a option 'trained_model' to load the model")
             sys.exit(1)
+        torch.manual_seed(self.args.seed)
+        torch.backends.cudnn.deterministic = True
+        if not self.args.cuda:
+            self.args.gpu = -1
+        if torch.cuda.is_available() and self.args.cuda:
+            print("Note: You are using GPU for training")
+            torch.cuda.set_device(self.args.gpu)
+            torch.cuda.manual_seed(self.args.seed)
+        if torch.cuda.is_available() and not self.args.cuda:
+            print("Warning: You have Cuda but not use it. You are using CPU for training.")
+        np.random.seed(self.args.seed)
+        random.seed(self.args.seed)
 
         self.fields = fields
         train, valid, test = data.TabularDataset.splits(path=self.args.dataset_path,

@@ -67,8 +67,8 @@ class PairwiseFeature:
         sent_list1 = []
         sent_list2 = []
         for s1, s2 in self.corpus[corpusName]:
-            sent1 = s1.rstrip('.').split(' ')
-            sent2 = s2.rstrip('.').split(' ')
+            sent1 = s1.rstrip('.').split()
+            sent2 = s2.rstrip('.').split()
             sent_list1.append(sent1)
             sent_list2.append(sent2)
             unique_tokens = set(sent1) | set(sent2)
@@ -80,6 +80,12 @@ class PairwiseFeature:
         for s1, s2 in zip(sent_list1, sent_list2):
             tokens_a_set_no_stop = set(w for w in s1 if w not in stoplist)
             tokens_b_set_no_stop = set(w for w in s2 if w not in stoplist)
+            twitter_intersect_no_stop = []
+            for token_a in tokens_a_set_no_stop:
+                for token_b in tokens_b_set_no_stop:
+                    if token_a in token_b:
+                        twitter_intersect_no_stop.append(token_a)
+            twitter_feature = len(list(set(twitter_intersect_no_stop))) / len(tokens_a_set_no_stop)
             intersect_no_stop = tokens_a_set_no_stop & tokens_b_set_no_stop
             overlap_no_stop = len(intersect_no_stop) / len(tokens_a_set_no_stop)
             idf_intersect_no_stop = sum(np.math.log(num_docs / self.word_cnt[corpusName][w]) for w in intersect_no_stop)
@@ -91,6 +97,8 @@ class PairwiseFeature:
                 fout.write(" ".join([str(item) for item in items])+"\n")
             fout.close()
         return intersect_feats
+
+
 
 
 
