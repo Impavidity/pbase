@@ -13,6 +13,7 @@ import numpy as np
 from six.moves.urllib.request import urlretrieve
 import zipfile
 from .utils import reporthook
+import random
 
 
 class EmbeddingFilter:
@@ -279,10 +280,11 @@ class LinguisticFeatureAnnotator:
             exit()
 
 class RandomTrainer:
-    def __init__(self, script, random_seed_arg, model_prefix_arg, log_dir, model_dir, round_num):
+    def __init__(self, script, random_seed_arg, model_prefix_arg, save_path_arg, log_dir, model_dir, round_num):
         self.script = script
         self.random_seed_arg = random_seed_arg
         self.model_prefix_arg = model_prefix_arg
+        self.save_path_arg = save_path_arg
         self.log_dir = log_dir
         self.model_dir = model_dir
         self.round_num = round_num
@@ -303,6 +305,7 @@ class RandomTrainer:
                     [
                         self.random_seed_arg, str(gen_random),
                         self.model_prefix_arg, "{}_{}".format(i, gen_random),
+                        self.save_path_arg, self.model_dir
                     ], stdout=handler)
                 process_list.append(proc)
 
@@ -351,3 +354,35 @@ class RandomTester:
                 results.append(parser(text))
         return results
 
+class PosNegPairGenerator:
+    def __init__(self):
+        pass
+
+    def convertCorpus(self, corpus_name, input_path, group_index, label_index, pos_label, neg_label, output_path, neg_sample_size=None):
+        fin = open(input_path)
+        fout = open(output_path, 'w')
+        corpus = defaultdict(lambda : defaultdict(list))
+        for line in fin.readlines():
+            items = line.strip().split('\t')
+            group_by = items[group_index]
+            label = items[label_index]
+            corpus[group_by][label].append(line.strip())
+        for group in corpus.keys():
+            if len(corpus[group]) > 2:
+                print("Only allow 2 labels")
+                print(corpus[group].keys())
+                return
+            pos = corpus[group][pos_label]
+            neg = corpus[group][neg_label]
+            for pos_item in pos:
+                if neg_sample_size != None:
+                    neg = random.sample(neg, neg_sample_size)
+                for neg_item in neg:
+                    fout.write("{}\t{}\n".format(pos_item, neg_item))
+        fout.close()
+
+
+
+    def convertCorpusWithRanking(self, corpus_name, input_path, group_index, label_index,
+                             ranking_index, pos_label, neg_label, output_path):
+        pass

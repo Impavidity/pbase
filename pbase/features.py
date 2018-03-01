@@ -63,7 +63,7 @@ class PairwiseFeature:
             fout.close()
         return overlap_feats
 
-    def intersectFeature(self, corpusName, dumpPath=None):
+    def intersectFeature(self, corpusName, dumpPath=None, twitter=False):
         sent_list1 = []
         sent_list2 = []
         for s1, s2 in self.corpus[corpusName]:
@@ -83,14 +83,17 @@ class PairwiseFeature:
             twitter_intersect_no_stop = []
             for token_a in tokens_a_set_no_stop:
                 for token_b in tokens_b_set_no_stop:
-                    if token_a in token_b:
+                    if (token_a in token_b or token_b in token_a) and (abs(len(token_a)-len(token_b)) <= 1):
                         twitter_intersect_no_stop.append(token_a)
             twitter_feature = len(list(set(twitter_intersect_no_stop))) / len(tokens_a_set_no_stop)
             intersect_no_stop = tokens_a_set_no_stop & tokens_b_set_no_stop
             overlap_no_stop = len(intersect_no_stop) / len(tokens_a_set_no_stop)
             idf_intersect_no_stop = sum(np.math.log(num_docs / self.word_cnt[corpusName][w]) for w in intersect_no_stop)
             idf_overlap_no_stop = idf_intersect_no_stop / len(tokens_a_set_no_stop)
-            intersect_feats.append([overlap_no_stop, idf_overlap_no_stop])
+            if twitter:
+                intersect_feats.append([overlap_no_stop, idf_overlap_no_stop, twitter_feature])
+            else:
+                intersect_feats.append([overlap_no_stop, idf_overlap_no_stop])
         if dumpPath != None:
             fout = open(dumpPath, 'w')
             for items in intersect_feats:

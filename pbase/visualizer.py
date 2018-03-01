@@ -74,4 +74,3 @@ class DistributionComparison:
         return stats.levene(dis1, dis2)
 
 
-

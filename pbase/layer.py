@@ -72,7 +72,7 @@ class LSTM(nn.LSTM):
 class SimpleCNN(nn.Module):
     def __init__(self, num_of_conv, in_channels, out_channels, kernel_size, in_features, out_features, stride=1,
                  dilation=1, groups=1, bias=True, active_func = F.relu, pooling=F.max_pool1d,
-                 dropout=0.5, padding_strategy="default", padding_list=None):
+                 dropout=0.5, padding_strategy="default", padding_list=None, fc_layer=True):
         """
 
         :param num_of_conv: Follow kim cnn idea
@@ -99,10 +99,13 @@ class SimpleCNN(nn.Module):
                                              groups=groups,
                                              bias=bias)
                                    for k_size, padding in zip(kernel_size, padding_list)])
-        self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(num_of_conv * out_channels, out_features)
         self.pooling = pooling
         self.active_func = active_func
+        self.fc_layer = fc_layer
+        if fc_layer:
+            self.dropout = nn.Dropout(dropout)
+            self.fc = nn.Linear(num_of_conv * out_channels, out_features)
+
 
     def forward(self, input):
         if len(input.size()) == 3:
@@ -112,8 +115,9 @@ class SimpleCNN(nn.Module):
         # (batch, channel_output, ~=sent_len) * Ks
         x = [self.pooling(i, i.size(2)).squeeze(2) for i in x] # max-over-time pooling
         x = torch.cat(x, 1) # (batch, out_channels * Ks)
-        x = self.dropout(x)
-        x = self.fc(x)
+        if self.fc_layer:
+            x = self.dropout(x)
+            x = self.fc(x)
         return x
 
 class SequenceCNN(nn.Module):
@@ -238,6 +242,71 @@ class Biaffine(nn.Module):
                 + 'in1_features=' + str(self.in1_features) \
                 + ', in2_features=' + str(self.in2_features) \
                 + ', out_features=' + str(self.out_features) + ')'
+
+
+class Highway(nn.Module):
+    def __init__(self, hidden_size, num_layers, f):
+        super(Highway, self).__init__()
+        self.num_layers = num_layers
+        self.nonlinear = nn.ModuleList([nn.Linear(hidden_size, hidden_size) for _ in range(num_layers)])
+        self.linear = nn.ModuleList([nn.Linear(hidden_size, hidden_size) for _ in range(num_layers)])
+        self.gate = nn.ModuleList([nn.Linear(hidden_size, hidden_size) for _ in range(num_layers)])
+        self.f = f
+
+    def forward(self, input):
+        for layer in range(self.num_layers):
+            gate = F.sigmoid(self.gate[layer](input))
+            nonlinear = self.f(self.nonlinear[layer](input))
+            linear = self.linear[layer](input)
+            x = gate * nonlinear + (1 - gate) * linear
+        return x
+
+class HighwayLSTM(nn.Module):
+    def __init__(self):
+        super(HighwayLSTM, self).__init__()
+        pass
+
+
+class CRF(nn.Module):
+    def __init__(self, tagset_size, gpu=-1):
+        super(CRF, self).__init__()
+        self.average_batch = False
+        self.gpu = gpu
+        self.tagset_size =  tagset_size
+        # We add 2 here, because of STAET_TAG and STOP_TAG
+        # transition (f_tag_size, t_tag_size), transition value from f_tag to t_tag
+        if self.gpu != -1:
+            init_transitions = torch.zeros(self.tagset_size + 2, self.tagset_size + 2).cuda(self.gpu)
+        else:
+            init_transitions = torch.zeros(self.tagset_size + 2, self.tagset_size + 2)
+        self.transitions = nn.Parameter(init_transitions)
+
+
+    def viterbi_decode(self, in_features, mask):
+        """
+
+        :param in_features: (batch_size, sequence_length, self.tag_size + 2)
+        :param mask: (batch_size, sequence_length)
+        :return: decode_idx: (batch_size, sequence_length)
+                 path_score: (batch_size, 1)
+        """
+        batch_size = in_features.size(0)
+        sequence_length = in_features.size(1)
+        tag_size = in_features.size(2)
+        assert(tag_size == self.tagset_size + 2)
+        # calculate sentence length for each sentence
+        length_mask = torch.sum(mask, dim=1).view(batch_size, 1).long()
+        # Transpose mask to (sequence_length, batch_size) TODO: Why
+        mask = mask.transpose(1,0).contiguous()
+        ins_num = sequence_length * batch_size
+        feats = in_features.tranpose(1,0).contiguous().view(ins_num, 1, tag_size).expand(ins_num, tag_size, tag_size)
+        # TODO: Why do we need add here
+        scores = feats + self.transitions.view(1, tag_size, tag_size).expand(ins_num, tag_size, tag_size)
+        scores = scores.view(sequence_length, batch_size, tag_size, tag_size)
+        seq_iter = enumerate(scores)
+        _, inivalues = seq_iter.next()
+
+
 
 
 
