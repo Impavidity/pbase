@@ -14,6 +14,8 @@ from six.moves.urllib.request import urlretrieve
 import zipfile
 from .utils import reporthook
 import random
+from nltk.stem import PorterStemmer
+stemmer = PorterStemmer()
 
 
 class EmbeddingFilter:
@@ -32,7 +34,7 @@ class EmbeddingFilter:
         self.Average = {}
 
 
-    def toEmbedding(self, lower=True):
+    def toEmbedding(self, lower=True, stem=False):
         if self.targetEmbeddingPath == None:
             print("Please Specify Target Embedding Path")
             return
@@ -45,12 +47,14 @@ class EmbeddingFilter:
         for token, embed in self.Embedding.items():
             if lower:
                 token = token.lower()
+            if stem:
+                token = stemmer.stem(token)
             if token in totalVocab and token not in processed:
                 fout.write(" ".join([token] + [str(x) for x in embed])+"\n")
                 processed.add(token)
         fout.close()
 
-    def toBinary(self, lower=True, toEmbedFirst=True):
+    def toBinary(self, lower=True, toEmbedFirst=True, stem=False):
         if self.targetBinaryPath == None:
             print("Please Specify Target Binary Path")
             return
@@ -58,7 +62,7 @@ class EmbeddingFilter:
             print("You are writing Embedding.pt to {}".format(self.targetBinaryPath))
         itos, vectors, dim = [], array.array('d'), None
         if toEmbedFirst:
-            self.toEmbedding(lower=lower)
+            self.toEmbedding(lower=lower, stem=stem)
         with open(self.targetEmbeddingPath, 'rb') as handler:
             lines = [line for line in handler]
         print("Loading vectors from {}".format(self.targetEmbeddingPath))
