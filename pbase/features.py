@@ -2,8 +2,14 @@ from collections import defaultdict
 import nltk
 nltk.download('stopwords', quiet=True)
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from nltk.tokenize.treebank import TreebankWordTokenizer
 import numpy as np
 from tqdm import tqdm
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+stemmer = PorterStemmer()
+tokenizer = TreebankWordTokenizer()
 
 
 class PairwiseFeature:
@@ -101,6 +107,31 @@ class PairwiseFeature:
             fout.close()
         return intersect_feats
 
+class IRFeature:
+    def __init__(self):
+        self.corpus = defaultdict(list)
+        self.term2id_dict = {}
+        self.tfidf_matrix = {}
+
+    def addCorpus(self, corpusName, path, textIndex, dilimiter='\t', tokenize=True, stem=True):
+        fin = open(path)
+        for line in tqdm(fin.readlines()):
+            items = line.strip().split(dilimiter)
+            sentence = items[textIndex]
+            if tokenize:
+                tokens = tokenizer.tokenize(sentence)
+            else:
+                tokens = sentence.split()
+            if stem:
+                tokens = [stemmer.stem(token) for token in tokens]
+            self.corpus[corpusName].append(" ".join(tokens))
+        fin.close()
+
+    def tfidfVectorize(self, corpusName):
+        tfidfVectorizer = TfidfVectorizer(stop_words='english')
+        self.tfidf_matrix[corpusName] = tfidfVectorizer.fit_transform(self.corpus[corpusName])
+        self.term2id_dict[corpusName] = tfidfVectorizer.vocabulary_
+        
 
 
 
