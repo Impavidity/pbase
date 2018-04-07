@@ -151,5 +151,26 @@ def TWITTER_MAP_MRR(pairs, pred_fname="pred.txt", gold_fname=None, id_fname=None
 
     return mean_average_precision, mean_reciprocal_rank, p_30
 
+def Ranking_MAP_MRR(pairs, pred_fname="pred.txt", gold_fname=None, model="model"):
+    if gold_fname == None:
+        print("You need to pass filename of qrel to the function")
+        exit()
+    results_file = open(pred_fname, "w")
+    results_template = "{qid} Q0 {docno} 0 {sim} {model}\n"
+    counter = 0
+    for pair in pairs:
+        for qid, docno, sim in zip(pair[0], pair[1], pair[2]):
+            results_file.write(results_template.format(qid=qid, docno=docno, sim=sim, model=model))
+    results_file.flush()
+    results_file.close()
+    trec_eval_path = '/mnt/collections/p8shi/dev/biaffine/qa/trec_eval-9.0.5/trec_eval'
+    trec_out = subprocess.check_output([trec_eval_path, gold_fname, pred_fname])
+    trec_out_lines = str(trec_out, 'utf-8').split('\n')
+    mean_average_precision = float(trec_out_lines[5].split('\t')[-1])
+    mean_reciprocal_rank = float(trec_out_lines[9].split('\t')[-1])
+    p_30 = float(trec_out_lines[25].split('\t')[-1])
+    return mean_average_precision, mean_reciprocal_rank, p_30
+
+
 
 

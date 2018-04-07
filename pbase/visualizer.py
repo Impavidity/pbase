@@ -24,7 +24,7 @@ class KeyInFileDistribution:
         sort_dict = sorted(self.count.items(), key=lambda k:k[1], reverse=True)
         return sort_dict[:k]
 
-    def sorted_cumulative_plot(self, k=None, xlabel=None, ylabel=None):
+    def sorted_cumulative_plot(self, k=None, xlabel=None, ylabel=None, title=None, filename=None):
         if k is None:
             k = len(self.count.keys())
         number_per_key = sorted(self.count.values(), reverse=True)
@@ -38,11 +38,16 @@ class KeyInFileDistribution:
         # get cumulative percentage of stores
         x_span = np.arange(0, y_span.size)
         # plot
+        fig, ax = plt.subplots(1)
+        if title is not None:
+            ax.set_title(title)
         if xlabel is not None:
-            plt.xlabel(xlabel)
+            ax.set_xlabel(xlabel)
         if ylabel is not None:
-            plt.ylabel(ylabel)
-        plt.plot(x_span, y_span)
+            ax.set_ylabel(ylabel)
+        ax.plot(x_span, y_span)
+        if filename is not None:
+            plt.savefig(filename)
         plt.show()
         return y
 
