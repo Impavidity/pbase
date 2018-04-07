@@ -400,13 +400,11 @@ class ContextDetection:
     Detection Strategy, this util extract the context which contain the query word regarding each token
     in the query. Window size is specified.
     """
-    def __init__(self, window_size, delimiter="<eos>", padding="<pad>", preprocessing=lambda x:x.split()):
+    def __init__(self, window_size, stem=True, padding="<pad>", preprocessing=lambda x:x.split()):
         self.half_window_size = window_size // 2
-        self.delimiter = delimiter
         self.padding = padding
+        self.stem = stem
         self.preprocessing = preprocessing
-
-
 
     def apply(self, query, document):
         collection = {"processed_query": None,
@@ -414,18 +412,24 @@ class ContextDetection:
                       "contexts":[]}
         query_tokens = self.preprocessing(query)
         document_tokens = self.preprocessing(document)
-        collection["processed_query"] = query_tokens
-        collection["processed_document"] = document_tokens
+        if self.stem:
+            query_tokens_comp = [stemmer.stem(token) for token in query_tokens]
+            document_tokens_comp = [stemmer.stem(token) for token in document_tokens]
+        else:
+            query_tokens_comp = query_tokens
+            document_tokens_comp = document_tokens
+        collection["processed_query"] = query_tokens_comp
+        collection["processed_document"] = document_tokens_comp
         document_length = len(document_tokens)
-        for query_token in query_tokens:
+        for query_token in query_tokens_comp:
             contexts = []
             for document_token_idx in range(document_length):
-                if query_token == document_tokens[document_token_idx]:
+                if query_token == document_tokens_comp[document_token_idx]:
                     context = [self.padding] * max(self.half_window_size - document_token_idx, 0) + \
                         document_tokens[max(document_token_idx - self.half_window_size, 0):
                                         min(document_length, document_token_idx + self.half_window_size + 1)] + \
                         [self.padding] * max(document_token_idx + self.half_window_size - document_length + 1, 0)
-                    contexts.append(context)
+                    contexts.append(" ".join(context))
             collection["contexts"].append(contexts)
         return collection
 
