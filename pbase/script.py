@@ -22,13 +22,13 @@ class EmbeddingFilter:
     """
     The text source should be separated with tab
     """
-    def __init__(self, sourceEmbeddingPath= None):
+    def __init__(self, sourceEmbeddingPath= None, stem=False):
         if sourceEmbeddingPath == None:
             print("You are not specify any Embedding Path")
             return
         self.sourceEmbeddingPath = sourceEmbeddingPath
         self.dim = 0
-        self.Embedding = self.loadEmbedding()
+        self.Embedding = self.loadEmbedding(stem=stem)
         self.Corpus = {}
         self.Vocab = {}
         self.Average = {}
@@ -121,7 +121,7 @@ class EmbeddingFilter:
         self.Vocab[corpusName] = words
         print("Add {} sentences, and {} words".format(len(sentences), len(words)))
 
-    def loadEmbedding(self):
+    def loadEmbedding(self, stem=False):
         fin = open(self.sourceEmbeddingPath)
         d = defaultdict(list)
         for line in tqdm(fin.readlines()):
@@ -129,7 +129,10 @@ class EmbeddingFilter:
             if len(line) == 2:
                 continue
             try:
-                d[line[0]] = [float(x) for x in line[1:]]
+                if stem:
+                    d[stemmer.stem(line[0])] = [float(x) for x in line[1:]]
+                else:
+                    d[line[0]] = [float(x) for x in line[1:]]
             except:
                 continue
         return d
@@ -390,3 +393,45 @@ class PosNegPairGenerator:
     def convertCorpusWithRanking(self, corpus_name, input_path, group_index, label_index,
                              ranking_index, pos_label, neg_label, output_path):
         pass
+
+class ContextDetection:
+    """
+    Following the idea of "DeepRank: A New Deep Architecture for Relevance Ranking in Information Retrieval"
+    Detection Strategy, this util extract the context which contain the query word regarding each token
+    in the query. Window size is specified.
+    """
+    def __init__(self, window_size, delimiter="<eos>", padding="<pad>", preprocessing=lambda x:x.split()):
+        self.half_window_size = window_size // 2
+        self.delimiter = delimiter
+        self.padding = padding
+        self.preprocessing = preprocessing
+
+
+
+    def apply(self, query, document):
+        collection = {"processed_query": None,
+                      "processed_document": None,
+                      "contexts":[]}
+        query_tokens = self.preprocessing(query)
+        document_tokens = self.preprocessing(document)
+        collection["processed_query"] = query_tokens
+        collection["processed_document"] = document_tokens
+        document_length = len(document_tokens)
+        for query_token in query_tokens:
+            contexts = []
+            for document_token_idx in range(document_length):
+                if query_token == document_tokens[document_token_idx]:
+                    context = [self.padding] * max(self.half_window_size - document_token_idx, 0) + \
+                        document_tokens[max(document_token_idx - self.half_window_size, 0):
+                                        min(document_length, document_token_idx + self.half_window_size + 1)] + \
+                        [self.padding] * max(document_token_idx + self.half_window_size - document_length + 1, 0)
+                    contexts.append(context)
+            collection["contexts"].append(contexts)
+        return collection
+
+
+
+
+
+
+
