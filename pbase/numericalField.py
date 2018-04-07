@@ -12,6 +12,7 @@ class NumericalField(object):
         self.tokenize = get_tokenizer(tokenize)
         self.batch_first = batch_first
         self.pad_token = pad_token
+        self.use_vocab = False
 
     def numericalize(self, arr, device=None, train=True):
         """
