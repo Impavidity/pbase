@@ -409,7 +409,8 @@ class ContextDetection:
     def apply(self, query, document):
         collection = {"processed_query": None,
                       "processed_document": None,
-                      "contexts":[]}
+                      "contexts":[],
+                      "positions":[]}
         query_tokens = self.preprocessing(query)
         document_tokens = self.preprocessing(document)
         if self.stem:
@@ -423,6 +424,7 @@ class ContextDetection:
         document_length = len(document_tokens)
         for query_token in query_tokens_comp:
             contexts = []
+            positions = []
             for document_token_idx in range(document_length):
                 if query_token == document_tokens_comp[document_token_idx]:
                     context = [self.padding] * max(self.half_window_size - document_token_idx, 0) + \
@@ -430,7 +432,9 @@ class ContextDetection:
                                         min(document_length, document_token_idx + self.half_window_size + 1)] + \
                         [self.padding] * max(document_token_idx + self.half_window_size - document_length + 1, 0)
                     contexts.append(" ".join(context))
+                    positions.append(document_token_idx)
             collection["contexts"].append(contexts)
+            collection["positions"].append(positions)
         return collection
 
 
