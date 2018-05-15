@@ -47,6 +47,7 @@ Here we use the PyTorch 0.4.0 version and torchtext 0.2.3
 ```
 conda install torchvision -c pytorch
 conda install -c anaconda cython
+conda install -c anaconda scipy 
 pip install torchtext
 ```
 We utilize the *TensorFlow* for visualization. Here in our machine, we use cuda8.0, so we need to install the package with specific version.
