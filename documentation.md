@@ -255,9 +255,25 @@ For **train** function, you basically process the **Batch** and build a feed dic
 
 ```
 def train(self, batch):
-  feed_dict = process_batch(batch)
+  feed_dict = self.process_batch(batch)
   self.sess.run(self.train_op, feed_dict=feed_dict)
 ```
+
+In **process_batch**, you basically convert each field into batch.
+
+First, you could define a filed.
+
+```
+TEXT = Field(sequential=True,
+             lower=True,
+             include_length = True,
+             pad_token=pad_toke)
+```
+and call **process** method.
+```
+padded_batch = TEXT.process(batch)
+```
+Then a padded batch will be generated.
 
 After you prepare the data iterator and model, you could use them for training now.
 
