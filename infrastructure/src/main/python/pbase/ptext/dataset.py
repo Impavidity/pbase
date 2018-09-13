@@ -5,7 +5,7 @@ class Dataset(object):
   """Define a dataset composed of Examples.
 
   Attributes:
-    examples: List of Examples
+    examples: List of dict object
     attributes: List of attributes
   """
 

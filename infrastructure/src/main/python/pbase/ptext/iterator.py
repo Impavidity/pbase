@@ -30,6 +30,7 @@ class Iterator(object):
     self.shuffle = shuffle
     self.random_shuffler = RandomShuffler()
     self.batch_size_fn = batch_size_fn
+    self.length = None
 
   def data(self):
     "Return the examples in the dataset in order, sorted or shuffled"
@@ -55,9 +56,15 @@ class Iterator(object):
       break
 
   def __len__(self):
-    if self.batch_size_fn is not None:
-      raise NotImplementedError
-    return math.ceil(len(self.dataset) / self.batch_size)
+    if self.length is None:
+      if self.batch_size_fn is not None:
+        self.length = 0
+        self.init_epoch()
+        for _ in self.batches:
+          self.length += 1
+      else:
+        self.length = math.ceil(len(self.dataset) / self.batch_size)
+    return self.length
 
 
 def batch(data, batch_size, batch_size_fn=None):

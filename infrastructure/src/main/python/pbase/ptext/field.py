@@ -28,6 +28,9 @@ class Field(object):
     fix_length: Int. The use case here is to support nested field. You need
       to specify the max length in a tensor, instead getting the max length
       from one dimension
+    build_vocab: Boolean. True if the vocab dictionary is built for this Field.
+      Default: True
+    dump_path: String or None. The path to dump vocab
   """
 
   def __init__(self,
@@ -40,7 +43,9 @@ class Field(object):
                tokenize=(lambda s: s.split()),
                include_lengths=False,
                pad_token="<pad>",
-               fix_length=None):
+               fix_length=None,
+               build_vocab=True,
+               dump_path=None):
     self.sequential = sequential
     self.init_token = init_token
     self.eos_token = eos_token
@@ -51,6 +56,9 @@ class Field(object):
     self.include_lengths = include_lengths
     self.pad_token = pad_token if self.sequential else None
     self.fix_length = fix_length
+    self.build_vocab = build_vocab
+    self.dump_path = dump_path
+    self.vocab = {}
 
   def preprocess(self, ex):
     """Load a single example using this field, tokenizing if necessary.
@@ -83,7 +91,6 @@ class Field(object):
       return batch
     if self.fix_length is None:
       max_len = max(len(x) for x in batch)
-      print("Now fix length is None, the max len is", max_len)
     else:
       max_len = self.fix_length + (
         self.init_token, self.eos_token).count(None) - 2
@@ -131,7 +138,9 @@ class NestedField(Field):
                tokenize=lambda s: s.split(),
                include_lengths=False,
                pad_token='<pad>',
-               fix_length=None):
+               fix_length=None,
+               build_vocab=True,
+               dump_path=None):
     if nesting_field.sequential:
       pad_token = nesting_field.pad_token
     super(NestedField, self).__init__(
@@ -142,7 +151,9 @@ class NestedField(Field):
       tokenize=tokenize,
       include_lengths=include_lengths,
       pad_token=pad_token,
-      fix_length=fix_length)
+      fix_length=fix_length,
+      build_vocab=build_vocab,
+      dump_path=dump_path)
     self.nesting_field = nesting_field
     assert self.nesting_field.include_lengths == self.include_lengths
 
@@ -162,9 +173,15 @@ class NestedField(Field):
       self.nesting_field.fix_length = fix_len
 
     if self.init_token is not None:
-      self.init_token = self.nesting_field.pad([[self.init_token]])[0]
+      if self.include_lengths:
+        self.init_token = self.nesting_field.pad([[self.init_token]])[0][0]
+      else:
+        self.init_token = self.nesting_field.pad([[self.init_token]])[0]
     if self.eos_token is not None:
-      self.eos_token = self.nesting_field.pad([[self.eos_token]])[0]
+      if self.include_lengths:
+        self.eos_token = self.nesting_field.pad([[self.eos_token]])[0][0]
+      else:
+        self.eos_token = self.nesting_field.pad([[self.eos_token]])[0]
     # Do padding
     if self.include_lengths:
       padded = []
@@ -185,7 +202,7 @@ class NestedField(Field):
     else:
       padded = [self.nesting_field.pad(ex) for ex in batch]
       self.pad_token = [self.nesting_field.pad_token] * self.nesting_field.fix_length
-      padded, high_level_lengths = super(NestedField, self).pad(padded)
+      padded = super(NestedField, self).pad(padded)
 
     if self.include_lengths:
       return padded, lengths
