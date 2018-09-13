@@ -1,0 +1,5 @@
+PYTORCH = "pytorch"
+TENSORFLOW = "tensorflow"
+TRAIN_TAG = "TRAIN"
+VALID_TAG = "VALID"
+TEST_TAG = "TEST"
