@@ -1,0 +1,11 @@
+python_binary(
+    name="ner_trainer",
+    dependencies=[
+        "infrastructure/src/main/python/pbase/pnn/tensorflow",
+        "infrastructure/src/main/python/pbase/ptext",
+        "infrastructure/src/main/python/pbase/papp",
+        "zoo/src/main/python/zoo/ner/model",
+        "3rdparty/python:argparse",
+    ],
+    source="trainer.py",
+)
