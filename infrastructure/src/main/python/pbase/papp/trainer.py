@@ -60,11 +60,12 @@ class Trainer(object):
     self.valid_dataset = Dataset(examples=valid_examples, attributes=attributes)
     self.test_dataset = Dataset(examples=test_examples, attributes=attributes)
 
-    build_vocab(
-      attributes=self.attributes,
-      train_dataset=self.train_dataset,
-      valid_dataset=self.valid_dataset,
-      test_dataset=self.test_dataset)
+    if not args.test:
+      build_vocab(
+        attributes=self.attributes,
+        train_dataset=self.train_dataset,
+        valid_dataset=self.valid_dataset,
+        test_dataset=self.test_dataset)
 
     self.train_iter = Iterator(
       dataset=self.train_dataset,
@@ -81,6 +82,10 @@ class Trainer(object):
       batch_size=args.batch_size,
       batch_size_fn=batch_size_fn_test,
       shuffle=False)
+
+    self.epoch = 0
+    self.iteration = 0
+    self.best_metrics = None
 
 
   def prepare(self, model, evaluator, metrics_comparison, log_printer, tensorflow_prepare=None):
@@ -102,14 +107,11 @@ class Trainer(object):
 
 
   def train(self):
-    epoch = 0
-    iteration = 0
-    best_metrics = None
     train_batch_counter = len(self.train_iter)
     while True:
-      if self.args.epoch > 0 and epoch >= self.args.epoch:
+      if self.args.epoch > 0 and self.epoch >= self.args.epoch:
         break
-      self.model.schedule(epoch)
+      self.model.schedule(self.epoch)
       start_training_time = time.time()
       train_loss_sum = 0
       for train_batch_idx, train_batch in enumerate(self.train_iter):
@@ -119,9 +121,9 @@ class Trainer(object):
           train_output, train_loss = self.model.train(train_batch)
         else:
           raise TypeError("{} framework is not supported".format(self.args.framework))
-        iteration += 1
+        self.iteration += 1
         train_metrics = self.evaluator(TRAIN_TAG, (train_output, train_batch))
-        if iteration % self.args.valid_every == 1:
+        if self.iteration % self.args.valid_every == 1:
           valid_results = []
           valid_loss_sum = 0
           for valid_batch_idx, valid_batch in enumerate(self.valid_iter):
@@ -136,25 +138,32 @@ class Trainer(object):
             valid_results.append((valid_output, valid_batch))
           valid_metrics = self.evaluator(VALID_TAG, valid_results)
           self.log_printer(VALID_TAG, loss=valid_loss_sum, metrics=valid_metrics)
-          if self.metrics_comparison(valid_metrics, best_metrics):
-            best_metrics = valid_metrics
+          if self.metrics_comparison(valid_metrics, self.best_metrics):
+            self.best_metrics = valid_metrics
             if self.evaluation:
               self.evaluate()
             if self.args.framework == TENSORFLOW:
               self.saver.save(self.sess, self.args.checkpoint)
+            if self.args.framework == PYTORCH:
+              self.save_pytorch_checkpoint(
+                epoch=self.epoch,
+                state_dict=self.model.model_definition.state_dict(),
+                optimizer_state=self.model.optimizer.state_dict(),
+                best_metrics=self.best_metrics,
+                filename=self.args.checkpoint)
 
-        if iteration % self.args.log_every == 0:
+        if self.iteration % self.args.log_every == 0:
           self.log_printer(
             TRAIN_TAG,
             loss=train_loss,
             metrics=train_metrics,
-            epoch=epoch,
+            epoch=self.epoch,
             iters="{}/{}".format(train_batch_idx, train_batch_counter))
 
       end_training_time = time.time()
       elapsed = end_training_time - start_training_time
       print("Training Epoch Time {}".format(elapsed))
-      epoch += 1
+      self.epoch += 1
 
   def save(self, inputs, outputs):
     if self.args.framework == TENSORFLOW:
@@ -163,14 +172,36 @@ class Trainer(object):
       self.saver.restore(self.sess, self.args.checkpoint)
       print("Checkpoint Restored")
       tf.saved_model.simple_save(
-        self.sess, self.args.save_path, inputs, outputs
-      )
-      print("Model Saved")
+        self.sess, self.args.save_path, inputs, outputs)
+      print("Model Saved to {}".format(self.args.checkpoint))
+
+
+  def save_pytorch_checkpoint(self, epoch, state_dict, optimizer_state, best_metrics, filename):
+    for k, tensor in state_dict.items():
+      state_dict[k] = tensor.cpu()
+    state = {
+      'epoch': epoch,
+      'state_dict': state_dict,
+      'optimizer_state': optimizer_state,
+      'best_metrics': best_metrics}
+    base_dir = os.path.dirname(filename)
+    if base_dir:
+      if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+    torch.save(state, filename)
+    print("Model Saved to {}".format(filename))
 
   def restore(self):
     if self.args.framework == TENSORFLOW:
       self.saver.restore(self.sess, self.args.restore_from)
-      print("Model Restored")
+      print("Model Restored from {}".format(self.args.restore_from))
+    if self.args.framework == PYTORCH:
+      model_file = torch.load(self.args.restore_from)
+      self.model.model_definition.load_state_dict(model_file["state_dict"])
+      self.epoch = model_file['epoch']
+      self.model.optimizer.load_state_dict(model_file["optimizer_state"])
+      self.best_metrics = model_file["best_metrics"]
+      print("Model Restored from {}".format(self.args.restore_from))
 
   def evaluate(self):
     test_results = []
