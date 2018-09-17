@@ -12,14 +12,17 @@ class RandomShuffler(object):
     return random.sample(data, len(data))
 
 
-def flatten(items):
+def flatten(item):
   """Yield items from any nested iterable; see Reference."""
-  for x in items:
-    if isinstance(x, list):
-      for sub_x in flatten(x):
-        yield sub_x
-    else:
-      yield x
+  if not isinstance(item, list):
+    yield item
+  else:
+    for x in item:
+      if isinstance(x, list):
+        for sub_x in flatten(x):
+          yield sub_x
+      else:
+        yield x
 
 
 def build_dataset_vocab(dataset, target, vocab):
