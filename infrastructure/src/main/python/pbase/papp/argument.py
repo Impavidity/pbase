@@ -25,6 +25,8 @@ class Argument(object):
     self.parser.add_argument('--prefix', type=str, default="exp")
     self.parser.add_argument("--tmp_dir", type=str, default="tmp")
     self.parser.add_argument("--epoch", type=int, default=epoch)
+    self.parser.add_argument("--reuse_vocab", action="store_true", default=False)
+    self.parser.add_argument("--debug", action="store_true", default=False)
     # Tester
     self.parser.add_argument("--test", action="store_true", dest='test')
     self.parser.add_argument('--restore_from', type=str, default='')

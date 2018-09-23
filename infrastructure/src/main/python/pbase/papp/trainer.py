@@ -60,7 +60,7 @@ class Trainer(object):
     self.valid_dataset = Dataset(examples=valid_examples, attributes=attributes)
     self.test_dataset = Dataset(examples=test_examples, attributes=attributes)
 
-    if not args.test:
+    if not args.test and not args.reuse_vocab:
       build_vocab(
         attributes=self.attributes,
         train_dataset=self.train_dataset,
