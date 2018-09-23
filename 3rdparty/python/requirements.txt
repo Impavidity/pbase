@@ -4,7 +4,7 @@ Flask
 Flask-PyMongo
 numpy==1.13.3
 six
-tensorflow
+tensorflow==1.10.0
 torch==0.4.0
 torchvision
 tqdm
