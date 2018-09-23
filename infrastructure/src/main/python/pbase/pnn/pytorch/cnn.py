@@ -56,3 +56,19 @@ class SimpleCNN(nn.Module):
       return x
     else:
       return x, x_map
+
+
+class CharCNN(SimpleCNN):
+  """
+  Single CNN for char
+  input: Tensor (batch, sent_len, word_len, char_dim)
+  """
+
+  def forward(self, input):
+    if len(input.size()) == 4:
+      input = input.unsqueeze(2)
+    # input = (batch, sent_len, in_channels, word_len, char_dim)
+    x = torch.stack([super(CharCNN, self).forward(input[i, :, :, :, :])
+                     for i in range(input.size(0))], dim=0)
+    # x = (batch, sent_len, output_feature)
+    return x
