@@ -11,3 +11,12 @@ jar_library(
     jar(org='com.google.guava', name='guava', rev='26.0-jre'),
   ],
 )
+
+jar_library(
+  name="anserini",
+  jars=[
+    jar(org='io.anserini', name='anserini', rev='0.2.1-SNAPSHOT',
+        url='file:///anserini-0.2.1-SNAPSHOT-fatjar.jar',
+        mutable=True),
+  ],
+)
