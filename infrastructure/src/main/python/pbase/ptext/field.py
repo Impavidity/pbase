@@ -140,7 +140,8 @@ class NestedField(Field):
                pad_token='<pad>',
                fix_length=None,
                build_vocab=True,
-               dump_path=None):
+               dump_path=None,
+               use_parent_vocab=False):
     if nesting_field.sequential:
       pad_token = nesting_field.pad_token
     super(NestedField, self).__init__(
@@ -155,6 +156,8 @@ class NestedField(Field):
       build_vocab=build_vocab,
       dump_path=dump_path)
     self.nesting_field = nesting_field
+    if use_parent_vocab:
+      self.vocab = self.nesting_field.vocab
     assert self.nesting_field.include_lengths == self.include_lengths
 
   def preprocess(self, ex):
@@ -165,6 +168,12 @@ class NestedField(Field):
     batch = list(batch)
     if not self.nesting_field.sequential:
       return super(NestedField, self).pad(batch)
+
+    # Save values of attributes to be monkeypatched
+    old_pad_token = self.pad_token
+    old_init_token = self.init_token
+    old_eos_token = self.eos_token
+    old_fix_len = self.nesting_field.fix_length
 
     if self.nesting_field.fix_length is None:
       max_len = max(len(xs) for ex in batch for xs in ex)
@@ -204,6 +213,12 @@ class NestedField(Field):
       self.pad_token = [self.nesting_field.pad_token] * self.nesting_field.fix_length
       padded = super(NestedField, self).pad(padded)
 
+    # Restore monkeypatched attributes
+    self.nesting_field.fix_length = old_fix_len
+    self.pad_token = old_pad_token
+    self.init_token = old_init_token
+    self.eos_token = old_eos_token
+
     if self.include_lengths:
       return padded, lengths
     return padded
@@ -217,9 +232,10 @@ def get_text_snippet(ex):
   :return: a string as an example
   """
   if isinstance(ex, list):
-    assert len(ex) > 0, ("The length of example "
-                  "should greater than 0")
-    return get_text_snippet(ex[0])
+    if len(ex) > 0:
+      return get_text_snippet(ex[0])
+    else:
+      return None
   elif isinstance(ex, (six.string_types, float, int)):
     return ex
   else:

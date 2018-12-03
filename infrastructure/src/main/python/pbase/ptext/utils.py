@@ -37,15 +37,15 @@ def build_vocab(
       valid_dataset,
       test_dataset):
   for attribute in attributes:
-    vocab = attribute.field.vocab
+    logging.info("Before adding the vocab in attribute {}, vocab size is {}".format(attribute.target, len(attribute.field.vocab)))
     if not attribute.field.build_vocab:
       continue
-    build_dataset_vocab(train_dataset, attribute.target, vocab)
+    build_dataset_vocab(train_dataset, attribute.target, attribute.field.vocab)
     if attribute.include_valid:
-      build_dataset_vocab(valid_dataset, attribute.target, vocab)
+      build_dataset_vocab(valid_dataset, attribute.target, attribute.field.vocab)
     if attribute.include_test:
-      build_dataset_vocab(test_dataset, attribute.target, vocab)
-    logging.info("Add vocab from attribute {}, vocab size: {}".format(attribute.target, len(vocab)))
+      build_dataset_vocab(test_dataset, attribute.target, attribute.field.vocab)
+    logging.info("Add vocab from attribute {}, vocab size: {}".format(attribute.target, len(attribute.field.vocab)))
   for attribute in attributes:
     if attribute.field.build_vocab and attribute.field.dump_path:
       with open(attribute.field.dump_path, "wb") as fout:
