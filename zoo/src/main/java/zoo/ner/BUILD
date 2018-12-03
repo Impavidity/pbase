@@ -5,6 +5,5 @@ jvm_binary(name = "ner",
     'infrastructure/src/main/java/pbase/ptext',
     '3rdparty/jvm:tensorflow',
     '3rdparty/jvm:guava',
-    '3rdparty/jvm:anserini',
   ],
 )
