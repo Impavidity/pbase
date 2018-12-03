@@ -7,6 +7,7 @@ def dynamic_rnn(rnn, inputs, seq_lengths):
   :param rnn: RNN instance
   :param inputs: FloatTensor, shape [batch, time, dim] if rnn.batch_first else [time, batch, dim]
   :param seq_lengths: LongTensor shape [batch]
+  :param hidden_state: FloatTensor,
   :return: the result of rnn layer
   """
   batch_first = rnn.batch_first

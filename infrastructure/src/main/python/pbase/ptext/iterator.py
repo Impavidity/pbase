@@ -23,7 +23,8 @@ class Iterator(object):
                sort_key=None,
                batch_size_fn=None,
                shuffle=None,
-               sort=None):
+               sort=None,
+               shuffle_in_batch=False):
     self.dataset, self.batch_size = dataset, batch_size
     self.sort_key = sort_key
     self.sort = sort
@@ -31,6 +32,7 @@ class Iterator(object):
     self.random_shuffler = RandomShuffler()
     self.batch_size_fn = batch_size_fn
     self.length = None
+    self.shuffle_in_batch = shuffle_in_batch
 
   def data(self):
     "Return the examples in the dataset in order, sorted or shuffled"
@@ -52,7 +54,9 @@ class Iterator(object):
     while True:
       self.init_epoch()
       for idx, minibatch in enumerate(self.batches):
-        yield Batch(minibatch, self.dataset)
+        if self.shuffle_in_batch:
+          minibatch = [minibatch[i] for i in self.random_shuffler(range(len(minibatch)))]
+        yield Batch(minibatch, self.dataset.attributes)
       break
 
   def __len__(self):

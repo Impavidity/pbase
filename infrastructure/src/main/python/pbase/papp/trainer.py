@@ -23,6 +23,7 @@ class Trainer(object):
         batch_size_fn_valid=None,
         batch_size_fn_test=None,
         train_shuffle=True,
+        train_shuffle_in_batch=False,
         evaluation=False
   ):
     self.args = args
@@ -71,17 +72,20 @@ class Trainer(object):
       dataset=self.train_dataset,
       batch_size=args.batch_size,
       batch_size_fn=batch_size_fn_train,
-      shuffle=train_shuffle)
+      shuffle=train_shuffle,
+      shuffle_in_batch=train_shuffle_in_batch)
     self.valid_iter = Iterator(
       dataset=self.valid_dataset,
       batch_size=args.batch_size,
       batch_size_fn=batch_size_fn_valid,
-      shuffle=False)
+      shuffle=False,
+      shuffle_in_batch=False)
     self.test_iter = Iterator(
       dataset=self.test_dataset,
       batch_size=args.batch_size,
       batch_size_fn=batch_size_fn_test,
-      shuffle=False)
+      shuffle=False,
+      shuffle_in_batch=False)
 
     self.epoch = 0
     self.iteration = 0

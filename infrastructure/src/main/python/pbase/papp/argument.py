@@ -1,12 +1,13 @@
 from argparse import ArgumentParser
-
+import json
 
 class Argument(object):
   def __init__(self, description, gpu="0", batch_size=8, seed=3435,
                dev_every=300, log_every=30, patience=5, epoch=0,
                framework="pytorch",
                dataset_path='data', train_file='train.txt', valid_file='valid.txt', test_file='test.txt',
-               save_path='saves', checkpoint="checkpoint/model.ckpt", result_path='results'):
+               save_path='saves', checkpoint="checkpoint/model.ckpt", result_path='results',
+               config_path='configs/config.json'):
     self.parser = ArgumentParser(description=description)
     self.parser.add_argument('--framework', type=str, default=framework)
     self.parser.add_argument('--no_cuda', action='store_false', dest='cuda')
@@ -33,6 +34,7 @@ class Argument(object):
     self.parser.add_argument('--result_path', type=str, default=result_path)
     self.parser.add_argument('--output_valid', type=str, default='valid.txt')
     self.parser.add_argument('--output_test', type=str, default='test.txt')
+    self.parser.add_argument('--config_path', type=str, default=config_path)
 
   def get_args(self, args=None):
     if args is not None:
@@ -41,5 +43,6 @@ class Argument(object):
       self.args = self.parser.parse_args()
     return self.args
 
-
-
+  def save(self, path):
+    with open(path, "w") as fout:
+      fout.write(json.dumps(self.args))

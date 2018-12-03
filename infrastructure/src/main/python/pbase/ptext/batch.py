@@ -6,12 +6,12 @@ class Batch(object):
     data: List of Examples
   """
 
-  def __init__(self, data=None, dataset=None):
+  def __init__(self, data=None, attributes=None):
     if data is not None:
       self.batch_size = len(data)
       self.data = data
 
-      for attribute in dataset.attributes:
+      for attribute in attributes:
         batch = [getattr(ex, attribute.target) for ex in data]
         setattr(self, attribute.target, attribute.field.pad(batch))
 
