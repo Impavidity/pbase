@@ -13,10 +13,33 @@ jar_library(
 )
 
 jar_library(
-  name="anserini",
+  name="lucene",
   jars=[
-    jar(org='io.anserini', name='anserini', rev='0.2.1-SNAPSHOT',
-        url='file:///anserini-0.2.1-SNAPSHOT-fatjar.jar',
-        mutable=True),
+    jar(org='org.apache.lucene', name='lucene-core', rev='6.3.0'),
+    jar(org='org.apache.lucene', name='lucene-benchmark', rev='6.3.0'),
+  ],
+)
+
+jar_library(
+  name="jena",
+  jars=[
+    jar(org='org.apache.jena', name='jena-tdb', rev='3.9.0'),
+    jar(org='org.apache.jena', name='jena-tdb2', rev='3.9.0'),
+    jar(org='org.apache.jena', name='jena-rdfconnection', rev='3.9.0'),
+  ],
+)
+
+jar_library(
+  name="log4j",
+  jars=[
+    jar(org='org.apache.logging.log4j', name='log4j-api', rev='2.4'),
+    jar(org='org.apache.logging.log4j', name='log4j-core', rev='2.4'),
+  ],
+)
+
+jar_library(
+  name="args4j",
+  jars=[
+    jar(org="args4j", name="args4j", rev="2.32"),
   ],
 )
