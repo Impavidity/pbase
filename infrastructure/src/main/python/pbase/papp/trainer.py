@@ -19,6 +19,9 @@ class Trainer(object):
         args,
         data_loader,
         attributes,
+        attributes_train=None,
+        attributes_valid=None,
+        attributes_test=None,
         batch_size_fn_train=None,
         batch_size_fn_valid=None,
         batch_size_fn_test=None,
@@ -28,6 +31,9 @@ class Trainer(object):
   ):
     self.args = args
     self.attributes = attributes
+    self.attributes_train = attributes_train if attributes_train else attributes
+    self.attributes_valid = attributes_valid if attributes_valid else attributes
+    self.attributes_test = attributes_test if attributes_test else attributes
     self.evaluation = evaluation
 
     """Set random seed"""
@@ -53,13 +59,13 @@ class Trainer(object):
     np.random.seed(self.args.seed)
     random.seed(self.args.seed)
 
-    train_examples = data_loader(args.train_file, attributes)
-    valid_examples = data_loader(args.valid_file, attributes)
-    test_examples = data_loader(args.test_file, attributes)
+    train_examples = data_loader(args.train_file, self.attributes_train)
+    valid_examples = data_loader(args.valid_file, self.attributes_valid)
+    test_examples = data_loader(args.test_file, self.attributes_test)
 
-    self.train_dataset = Dataset(examples=train_examples, attributes=attributes)
-    self.valid_dataset = Dataset(examples=valid_examples, attributes=attributes)
-    self.test_dataset = Dataset(examples=test_examples, attributes=attributes)
+    self.train_dataset = Dataset(examples=train_examples, attributes=self.attributes_train)
+    self.valid_dataset = Dataset(examples=valid_examples, attributes=self.attributes_valid)
+    self.test_dataset = Dataset(examples=test_examples, attributes=self.attributes_test)
 
     if not args.test and not args.reuse_vocab:
       build_vocab(

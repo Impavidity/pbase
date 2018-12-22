@@ -27,6 +27,8 @@ def flatten(item):
 
 def build_dataset_vocab(dataset, target, vocab):
   for example in dataset:
+    if not hasattr(example, target):
+      return
     for token in flatten(getattr(example, target)):
       vocab[token] = vocab.get(token, 0) + 1
 
