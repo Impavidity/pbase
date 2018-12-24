@@ -44,6 +44,7 @@ class UniformInitializer(object):
   def __init__(self, low, high):
     self.low = low
     self.high = high
+
   def __call__(self, shape):
     return np.random.uniform(self.low, self.high, size=shape)
 
@@ -53,21 +54,21 @@ class Vocab(object):
 
 
   """
-  def __init__(
-        self,
-        vocab_dict=None,
-        vocab_file_path=None,
-        vocab_file_parser=vocab_file_parser,
-        min_freq=1,
-        padding_token=None,
-        unk_token=None,
-        specials=None,
-        use_embedding=False,
-        embed_dim=None,
-        vocab_vector_file_path=None,
-        vocab_vector_token_lower=False,
-        unk_init=UniformInitializer(low=-0.001, high=0.001),
-        export_path=None):
+
+  def __init__(self,
+               vocab_dict=None,
+               vocab_file_path=None,
+               vocab_file_parser=vocab_file_parser,
+               min_freq=1,
+               padding_token=None,
+               unk_token=None,
+               specials=None,
+               use_embedding=False,
+               embed_dim=None,
+               vocab_vector_file_path=None,
+               vocab_vector_token_lower=False,
+               unk_init=UniformInitializer(low=-0.001, high=0.001),
+               export_path=None):
     """
 
     :param vocab_file_path:
@@ -97,7 +98,8 @@ class Vocab(object):
       self.unk_token_idx = self.itos.index(unk_token)
     if specials:
       self.itos.extend(specials)
-    words_and_frequencies = sorted(self.vocab_dict.items(), key=lambda tup: tup[0])
+    words_and_frequencies = sorted(
+        self.vocab_dict.items(), key=lambda tup: tup[0])
     words_and_frequencies.sort(key=lambda tup: tup[1], reverse=True)
     for word, freq in words_and_frequencies:
       if freq < min_freq:
@@ -113,23 +115,18 @@ class Vocab(object):
       self.vocab_vector = unk_init((self.vocab_size, self.embed_dim))
       if vocab_vector_file_path:
         self.vocab_vector_token_lower = vocab_vector_token_lower
-        self.load_vectors(
-          vocab_vector_file_path=vocab_vector_file_path)
+        self.load_vectors(vocab_vector_file_path=vocab_vector_file_path)
     if export_path:
       with open(export_path, "w") as fout:
         for tid, token in enumerate(self.itos):
           fout.write("{} {}\n".format(tid, token.encode('utf-8')))
       print("Export Vocab to {}".format(export_path))
-          
 
-
-  def load_vectors(
-        self,
-        vocab_vector_file_path,
-        vocab_vector_file_parser=vocab_vector_file_parser):
+  def load_vectors(self,
+                   vocab_vector_file_path,
+                   vocab_vector_file_parser=vocab_vector_file_parser):
     full_vocab_vector, vocab_vector_size, dim = vocab_vector_file_parser(
-      vocab_vector_file_path,
-      self.vocab_vector_token_lower)
+        vocab_vector_file_path, self.vocab_vector_token_lower)
     hit_count = 0
     for idx, token in enumerate(self.itos):
       if token in full_vocab_vector:
@@ -137,20 +134,21 @@ class Vocab(object):
         hit_count += 1
     del full_vocab_vector
     print("Total vocab size {}, hit {} of them. Coverage: {}".format(
-      self.vocab_size,
-      hit_count,
-      hit_count / self.vocab_size))
+        self.vocab_size, hit_count, hit_count / self.vocab_size))
 
   def batch_to_index(self, batch):
     batch = np.array(batch)
     shape = batch.shape
-    index_array = np.array([self.string_to_index(token) for token in batch.reshape(-1)])
+    index_array = np.array(
+        [self.string_to_index(token) for token in batch.reshape(-1)])
     return index_array.reshape(shape)
 
   def string_to_index(self, token):
     index = self.stoi.get(token, self.unk_token_idx)
     if index is None:
-      raise ValueError("unk_token is not defined, token {} is not in {}".format(token, self.stoi))
+      raise ValueError(
+          "unk_token is not defined, token {} is not in {}".format(
+              token, self.stoi))
     else:
       return index
 
@@ -165,5 +163,6 @@ class Vocab(object):
                       "{} is not supported".format(type(batch)))
 
     shape = batch.shape
-    string_array = np.array([self.index_to_string(index) for index in batch.reshape(-1)])
+    string_array = np.array(
+        [self.index_to_string(index) for index in batch.reshape(-1)])
     return string_array.reshape(shape)

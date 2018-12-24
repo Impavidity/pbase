@@ -4,9 +4,14 @@ class Batch(object):
   Attributes:
     batch_size: Number of examples in the batch
     data: List of Examples
+    
+  Args:
+    data: 
+    attributes: 
   """
 
   def __init__(self, data=None, attributes=None):
+
     if data is not None:
       self.batch_size = len(data)
       self.data = data

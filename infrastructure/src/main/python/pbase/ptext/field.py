@@ -67,12 +67,16 @@ class Field(object):
         first. If `sequential=True`, it will be tokenized. Then the input
         will be optionally lowercased and passed to the user-provided
         `preprocessing` Pipeline.
-    :param ex: a single example
-    :return: processed example
+
+    Args:
+      ex: a single example
+
+    Returns: processed example
+
     """
     text_snippet = get_text_snippet(ex)
-    if (six.PY2 and isinstance(text_snippet, six.string_types) and
-          not isinstance(text_snippet, six.text_type)):
+    if (six.PY2 and isinstance(text_snippet, six.string_types)
+        and not isinstance(text_snippet, six.text_type)):
       ex = Pipeline(lambda s: six.text_type(s, encoding='utf-8'))(ex)
     if self.preprocessing is not None:
       ex = self.preprocessing(ex)
@@ -92,16 +96,15 @@ class Field(object):
     if self.fix_length is None:
       max_len = max(len(x) for x in batch)
     else:
-      max_len = self.fix_length + (
-        self.init_token, self.eos_token).count(None) - 2
+      max_len = self.fix_length + (self.init_token,
+                                   self.eos_token).count(None) - 2
 
     padded, lengths = [], []
     for ex in batch:
-      padded.append(
-        ([] if self.init_token is None else [self.init_token]) +
-        list(ex[:max_len]) +
-        ([] if self.eos_token is None else [self.eos_token]) +
-        [self.pad_token] * max(0, max_len - len(ex)))
+      padded.append(([] if self.init_token is None else [self.init_token]) +
+                    list(ex[:max_len]) +
+                    ([] if self.eos_token is None else [self.eos_token]) +
+                    [self.pad_token] * max(0, max_len - len(ex)))
       lengths.append(len(padded[-1]) - max(0, max_len - len(ex)))
     if self.include_lengths:
       return (padded, lengths)
@@ -112,8 +115,11 @@ class Field(object):
 
     preprocess and then pad it
 
-    :param batch: A list of object
-    :return:
+    Args:
+      batch: A list of object
+
+    Returns:
+
     """
     batch = [self.preprocess(ex) for ex in batch]
     padded = self.pad(batch)
@@ -124,8 +130,7 @@ class NestedField(Field):
   """A nested field.
 
   Use case: User want to represent a document under character level, then
-    the an batch should in the shape of
-            [batch_size, document_length, sentence_length, word_length]
+    the an batch should in the shape of [batch_size, document_length, sentence_length, word_length]
     This nested filed supports build high dimension input with padding.
   """
 
@@ -145,24 +150,26 @@ class NestedField(Field):
     if nesting_field.sequential:
       pad_token = nesting_field.pad_token
     super(NestedField, self).__init__(
-      init_token=init_token,
-      eos_token=eos_token,
-      preprocessing=preprocessing,
-      postprocessing=postprocessing,
-      tokenize=tokenize,
-      include_lengths=include_lengths,
-      pad_token=pad_token,
-      fix_length=fix_length,
-      build_vocab=build_vocab,
-      dump_path=dump_path)
+        init_token=init_token,
+        eos_token=eos_token,
+        preprocessing=preprocessing,
+        postprocessing=postprocessing,
+        tokenize=tokenize,
+        include_lengths=include_lengths,
+        pad_token=pad_token,
+        fix_length=fix_length,
+        build_vocab=build_vocab,
+        dump_path=dump_path)
     self.nesting_field = nesting_field
     if use_parent_vocab:
       self.vocab = self.nesting_field.vocab
     assert self.nesting_field.include_lengths == self.include_lengths
 
   def preprocess(self, ex):
-    return [self.nesting_field.preprocess(x)
-       for x in super(NestedField, self).preprocess(ex)]
+    return [
+        self.nesting_field.preprocess(x)
+        for x in super(NestedField, self).preprocess(ex)
+    ]
 
   def pad(self, batch):
     batch = list(batch)
@@ -199,18 +206,20 @@ class NestedField(Field):
         pad_ex, len_ex = self.nesting_field.pad(ex)
         padded.append(pad_ex)
         lengths.append(len_ex)
-      self.pad_token = [self.nesting_field.pad_token] * self.nesting_field.fix_length
+      self.pad_token = [self.nesting_field.pad_token
+                        ] * self.nesting_field.fix_length
       padded, high_level_lengths = super(NestedField, self).pad(padded)
       max_len_idx = np.argmax(high_level_lengths)
       max_len = (high_level_lengths[max_len_idx]
-                  if self.fix_length is None else self.fix_length)
+                 if self.fix_length is None else self.fix_length)
       pad_len_token = np.zeros_like(lengths[max_len_idx][0]).tolist()
       for i in range(len(lengths)):
         while len(lengths[i]) < max_len:
           lengths[i].append(pad_len_token)
     else:
       padded = [self.nesting_field.pad(ex) for ex in batch]
-      self.pad_token = [self.nesting_field.pad_token] * self.nesting_field.fix_length
+      self.pad_token = [self.nesting_field.pad_token
+                        ] * self.nesting_field.fix_length
       padded = super(NestedField, self).pad(padded)
 
     # Restore monkeypatched attributes
@@ -228,8 +237,11 @@ def get_text_snippet(ex):
   """Get an string element from input example. This element is used for
   encoding checking.
 
-  :param ex: Any object, expected to be recursive list/tuple, or string
-  :return: a string as an example
+  Args:
+    ex: Any object, expected to be recursive list/tuple, or string
+
+  Returns: a string as an example
+
   """
   if isinstance(ex, list):
     if len(ex) > 0:
