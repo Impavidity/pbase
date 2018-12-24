@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Papp – Main components of pbase &mdash; pbase 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Ptext – Text processing library of pbase" href="ptext.html" />
+    <link rel="prev" title="API Reference" href="index.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pbase
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install PBase</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Papp – Main components of pbase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptext.html">Ptext – Text processing library of pbase</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pbase</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">API Reference</a> &raquo;</li>
+        
+      <li>Papp – Main components of pbase</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/python/papp.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="papp-main-components-of-pbase">
+<h1>Papp – Main components of pbase<a class="headerlink" href="#papp-main-components-of-pbase" title="Permalink to this headline">¶</a></h1>
+<dl class="data">
+<dt id="pbase.papp.PYTORCH">
+<code class="descclassname">pbase.papp.</code><code class="descname">PYTORCH</code><em class="property"> = 'pytorch'</em><a class="headerlink" href="#pbase.papp.PYTORCH" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constant for <cite>pytorch</cite> framework.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pbase.papp.TENSORFLOW">
+<code class="descclassname">pbase.papp.</code><code class="descname">TENSORFLOW</code><em class="property"> = 'tensorflow'</em><a class="headerlink" href="#pbase.papp.TENSORFLOW" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constant for <cite>tensorflow</cite> framework.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.papp.Argument">
+<em class="property">class </em><code class="descclassname">pbase.papp.</code><code class="descname">Argument</code><span class="sig-paren">(</span><em>description</em>, <em>gpu='0'</em>, <em>batch_size=8</em>, <em>seed=3435</em>, <em>dev_every=300</em>, <em>log_every=30</em>, <em>patience=5</em>, <em>epoch=0</em>, <em>framework='pytorch'</em>, <em>dataset_path='data'</em>, <em>train_file='train.txt'</em>, <em>valid_file='valid.txt'</em>, <em>test_file='test.txt'</em>, <em>save_path='saves'</em>, <em>checkpoint='checkpoint/model.ckpt'</em>, <em>result_path='results'</em>, <em>config_path='configs/config.json'</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/argument.html#Argument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.Argument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Argument base class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>description</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – description of the argument.</li>
+<li><strong>gpu</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – gpu id. Default: “0”</li>
+<li><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – batch size. Default: 8</li>
+<li><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – random seed. Default: 3435</li>
+<li><strong>dev_every</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the iteration gap for conducting validation. Default: 300</li>
+<li><strong>log_every</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the iteration gap for printing training log. Default: 30</li>
+<li><strong>patience</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the epoch size to wait for early stopping</li>
+<li><strong>epoch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – epoch size to train, 0 means non-stop. Default: 0</li>
+<li><strong>framework</strong> (<a class="reference internal" href="#pbase.papp.PYTORCH" title="pbase.papp.PYTORCH"><code class="xref py py-data docutils literal notranslate"><span class="pre">PYTORCH</span></code></a>, <a class="reference internal" href="#pbase.papp.TENSORFLOW" title="pbase.papp.TENSORFLOW"><code class="xref py py-data docutils literal notranslate"><span class="pre">TENSORFLOW</span></code></a>) – framework to use.
+Default: <a class="reference internal" href="#pbase.papp.PYTORCH" title="pbase.papp.PYTORCH"><code class="xref py py-data docutils literal notranslate"><span class="pre">PYTORCH</span></code></a></li>
+<li><strong>dataset_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – dataset directory path. Default: “data”</li>
+<li><strong>train_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – train dataset file name. Default: “train.txt”</li>
+<li><strong>valid_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – validation dataset file name. Default: “valid.txt”</li>
+<li><strong>test_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – test dataset file name. Default: “test.txt”</li>
+<li><strong>save_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<li><strong>checkpoint</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<li><strong>result_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </li>
+<li><strong>config_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – full path of configuration file. Default: “configs/config.json”</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pbase.papp.Argument.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/argument.html#Argument.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.Argument.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump the arguments to json file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path to save the argument json file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.papp.Config">
+<em class="property">class </em><code class="descclassname">pbase.papp.</code><code class="descname">Config</code><span class="sig-paren">(</span><em>path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/config.html#Config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load argument from json file, creating <a class="reference internal" href="#pbase.papp.Config" title="pbase.papp.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a> object</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.papp.Trainer">
+<em class="property">class </em><code class="descclassname">pbase.papp.</code><code class="descname">Trainer</code><span class="sig-paren">(</span><em>args</em>, <em>data_loader</em>, <em>attributes</em>, <em>attributes_train=None</em>, <em>attributes_valid=None</em>, <em>attributes_test=None</em>, <em>batch_size_fn_train=None</em>, <em>batch_size_fn_valid=None</em>, <em>batch_size_fn_test=None</em>, <em>train_shuffle=True</em>, <em>train_shuffle_in_batch=False</em>, <em>evaluation=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/trainer.html#Trainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.Trainer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="pbase.papp.Trainer.evaluation">
+<code class="descname">evaluation</code><em class="property"> = None</em><a class="headerlink" href="#pbase.papp.Trainer.evaluation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set random seed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.papp.Tester">
+<em class="property">class </em><code class="descclassname">pbase.papp.</code><code class="descname">Tester</code><span class="sig-paren">(</span><em>config</em>, <em>attributes</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/tester.html#Tester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.Tester" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="pbase.papp.Tester.attributes">
+<code class="descname">attributes</code><em class="property"> = None</em><a class="headerlink" href="#pbase.papp.Tester.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set random seed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.papp.BaseModel">
+<em class="property">class </em><code class="descclassname">pbase.papp.</code><code class="descname">BaseModel</code><span class="sig-paren">(</span><em>config</em>, <em>model_definition</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/model_pytorch.html#BaseModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.BaseModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic structure for model</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.papp.Logger">
+<em class="property">class </em><code class="descclassname">pbase.papp.</code><code class="descname">Logger</code><span class="sig-paren">(</span><em>log_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/logger.html#Logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.Logger" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="pbase.papp.Logger.histo_summary">
+<code class="descname">histo_summary</code><span class="sig-paren">(</span><em>tag</em>, <em>values</em>, <em>step</em>, <em>bins=1000</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/logger.html#Logger.histo_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.Logger.histo_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log a histogram of the tensor of values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pbase.papp.Logger.image_summary">
+<code class="descname">image_summary</code><span class="sig-paren">(</span><em>tag</em>, <em>images</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/logger.html#Logger.image_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.Logger.image_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log a list of images.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pbase.papp.Logger.scalar_summary">
+<code class="descname">scalar_summary</code><span class="sig-paren">(</span><em>tag</em>, <em>value</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/papp/logger.html#Logger.scalar_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.papp.Logger.scalar_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log a scalar variable.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ptext.html" class="btn btn-neutral float-right" title="Ptext – Text processing library of pbase" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Peng Shi
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Ptext – Text processing library of pbase &mdash; pbase 0.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Papp – Main components of pbase" href="papp.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pbase
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install/index.html">Install PBase</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="papp.html">Papp – Main components of pbase</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ptext – Text processing library of pbase</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pbase</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">API Reference</a> &raquo;</li>
+        
+      <li>Ptext – Text processing library of pbase</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/python/ptext.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ptext-text-processing-library-of-pbase">
+<h1>Ptext – Text processing library of pbase<a class="headerlink" href="#ptext-text-processing-library-of-pbase" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="pbase.ptext.Attribute">
+<em class="property">class </em><code class="descclassname">pbase.ptext.</code><code class="descname">Attribute</code><span class="sig-paren">(</span><em>target</em>, <em>source</em>, <em>field</em>, <em>include_valid=False</em>, <em>include_test=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/attribute.html#Attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Attribute" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the attribute name in the batch</li>
+<li><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the key in the example dict</li>
+<li><strong>field</strong> (<a class="reference internal" href="#pbase.ptext.Field" title="pbase.ptext.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>) – the field for target attribute</li>
+<li><strong>include_valid</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – if True, the validation
+dataset vocab will be included.</li>
+<li><strong>include_test</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – if True, the testing dataset
+vocab will be included</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.ptext.Batch">
+<em class="property">class </em><code class="descclassname">pbase.ptext.</code><code class="descname">Batch</code><span class="sig-paren">(</span><em>data=None</em>, <em>attributes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/batch.html#Batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a batch of examples along with its Fields</p>
+<dl class="attribute">
+<dt id="pbase.ptext.Batch.batch_size">
+<code class="descname">batch_size</code><a class="headerlink" href="#pbase.ptext.Batch.batch_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of examples in the batch</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Batch.data">
+<code class="descname">data</code><a class="headerlink" href="#pbase.ptext.Batch.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of Examples</p>
+</dd></dl>
+
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> – </li>
+<li><strong>attributes</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.ptext.Dataset">
+<em class="property">class </em><code class="descclassname">pbase.ptext.</code><code class="descname">Dataset</code><span class="sig-paren">(</span><em>examples</em>, <em>attributes</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/dataset.html#Dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a dataset composed of Examples.</p>
+<dl class="attribute">
+<dt id="pbase.ptext.Dataset.examples">
+<code class="descname">examples</code><a class="headerlink" href="#pbase.ptext.Dataset.examples" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of dict object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Dataset.attributes">
+<code class="descname">attributes</code><a class="headerlink" href="#pbase.ptext.Dataset.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of attributes</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.ptext.Example">
+<em class="property">class </em><code class="descclassname">pbase.ptext.</code><code class="descname">Example</code><span class="sig-paren">(</span><em>example_dict</em>, <em>attributes</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/example.html#Example"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Example" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the example class</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.ptext.Field">
+<em class="property">class </em><code class="descclassname">pbase.ptext.</code><code class="descname">Field</code><span class="sig-paren">(</span><em>sequential=True</em>, <em>init_token=None</em>, <em>eos_token=None</em>, <em>preprocessing=None</em>, <em>postprocessing=None</em>, <em>lower=False</em>, <em>tokenize=&lt;function Field.&lt;lambda&gt;&gt;</em>, <em>include_lengths=False</em>, <em>pad_token='&lt;pad&gt;'</em>, <em>fix_length=None</em>, <em>build_vocab=True</em>, <em>dump_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/field.html#Field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text processing for different data type</p>
+<dl class="attribute">
+<dt id="pbase.ptext.Field.sequential">
+<code class="descname">sequential</code><a class="headerlink" href="#pbase.ptext.Field.sequential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean. True if this data type is sequential. Default True</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.init_token">
+<code class="descname">init_token</code><a class="headerlink" href="#pbase.ptext.Field.init_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>String or None. A token that will be prepended to every
+example, or None for no initial token. Default: None</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.eos_token">
+<code class="descname">eos_token</code><a class="headerlink" href="#pbase.ptext.Field.eos_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>String or None. A token that will be appended to every example,
+or None for no end-of-sentence token. Default: None</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.preprocessing">
+<code class="descname">preprocessing</code><a class="headerlink" href="#pbase.ptext.Field.preprocessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline. A Pipeline that will be applied to examples
+before tokenizing. Default: None</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.postprocessing">
+<code class="descname">postprocessing</code><a class="headerlink" href="#pbase.ptext.Field.postprocessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pipeline. A Pipeline that will be applied to examples
+after tokenizing. Default: None</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.lower">
+<code class="descname">lower</code><a class="headerlink" href="#pbase.ptext.Field.lower" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean. True if lowercase the text in this field. Default False.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.tokenize">
+<code class="descname">tokenize</code><a class="headerlink" href="#pbase.ptext.Field.tokenize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function. The function used to tokenize strings into sequential
+examples. Default: str.split</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.include_lengths">
+<code class="descname">include_lengths</code><a class="headerlink" href="#pbase.ptext.Field.include_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean. True if a tuple of a padded batch and a list
+containing the lengths of each examples will be returned. False then
+return a padded batch. Default: False</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.pad_token">
+<code class="descname">pad_token</code><a class="headerlink" href="#pbase.ptext.Field.pad_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>String. The string token used as padding. Default: “&lt;pad&gt;”</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.fix_length">
+<code class="descname">fix_length</code><a class="headerlink" href="#pbase.ptext.Field.fix_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Int. The use case here is to support nested field. You need
+to specify the max length in a tensor, instead getting the max length
+from one dimension</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.build_vocab">
+<code class="descname">build_vocab</code><a class="headerlink" href="#pbase.ptext.Field.build_vocab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean. True if the vocab dictionary is built for this Field.
+Default: True</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Field.dump_path">
+<code class="descname">dump_path</code><a class="headerlink" href="#pbase.ptext.Field.dump_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>String or None. The path to dump vocab</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pbase.ptext.Field.preprocess">
+<code class="descname">preprocess</code><span class="sig-paren">(</span><em>ex</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/field.html#Field.preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Field.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a single example using this field, tokenizing if necessary.</p>
+<dl class="docutils">
+<dt>If the input is a Python 2 <cite>str</cite>, it will be converted to Unicode</dt>
+<dd>first. If <cite>sequential=True</cite>, it will be tokenized. Then the input
+will be optionally lowercased and passed to the user-provided
+<cite>preprocessing</cite> Pipeline.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ex</strong> – a single example</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: processed example</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pbase.ptext.Field.process">
+<code class="descname">process</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/field.html#Field.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Field.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a list of examples to create batch</p>
+<p>preprocess and then pad it</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – A list of object</td>
+</tr>
+</tbody>
+</table>
+<p>Returns:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.ptext.NestedField">
+<em class="property">class </em><code class="descclassname">pbase.ptext.</code><code class="descname">NestedField</code><span class="sig-paren">(</span><em>nesting_field</em>, <em>init_token=None</em>, <em>eos_token=None</em>, <em>preprocessing=None</em>, <em>postprocessing=None</em>, <em>tokenize=&lt;function NestedField.&lt;lambda&gt;&gt;</em>, <em>include_lengths=False</em>, <em>pad_token='&lt;pad&gt;'</em>, <em>fix_length=None</em>, <em>build_vocab=True</em>, <em>dump_path=None</em>, <em>use_parent_vocab=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/field.html#NestedField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.NestedField" title="Permalink to this definition">¶</a></dt>
+<dd><p>A nested field.</p>
+<dl class="docutils">
+<dt>Use case: User want to represent a document under character level, then</dt>
+<dd>the an batch should in the shape of [batch_size, document_length, sentence_length, word_length]
+This nested filed supports build high dimension input with padding.</dd>
+</dl>
+<dl class="method">
+<dt id="pbase.ptext.NestedField.preprocess">
+<code class="descname">preprocess</code><span class="sig-paren">(</span><em>ex</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/field.html#NestedField.preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.NestedField.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a single example using this field, tokenizing if necessary.</p>
+<dl class="docutils">
+<dt>If the input is a Python 2 <cite>str</cite>, it will be converted to Unicode</dt>
+<dd>first. If <cite>sequential=True</cite>, it will be tokenized. Then the input
+will be optionally lowercased and passed to the user-provided
+<cite>preprocessing</cite> Pipeline.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ex</strong> – a single example</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: processed example</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.ptext.Iterator">
+<em class="property">class </em><code class="descclassname">pbase.ptext.</code><code class="descname">Iterator</code><span class="sig-paren">(</span><em>dataset</em>, <em>batch_size</em>, <em>sort_key=None</em>, <em>batch_size_fn=None</em>, <em>shuffle=None</em>, <em>sort=None</em>, <em>shuffle_in_batch=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/iterator.html#Iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define an iterator to generate batch data</p>
+<dl class="attribute">
+<dt id="pbase.ptext.Iterator.dataset">
+<code class="descname">dataset</code><a class="headerlink" href="#pbase.ptext.Iterator.dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dataset</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Iterator.batch_size">
+<code class="descname">batch_size</code><a class="headerlink" href="#pbase.ptext.Iterator.batch_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Int</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Iterator.sort_key">
+<code class="descname">sort_key</code><a class="headerlink" href="#pbase.ptext.Iterator.sort_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lambda/Function</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Iterator.batch_size_fn">
+<code class="descname">batch_size_fn</code><a class="headerlink" href="#pbase.ptext.Iterator.batch_size_fn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lambda/Function, used for dynamic batch size</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Iterator.shuffle">
+<code class="descname">shuffle</code><a class="headerlink" href="#pbase.ptext.Iterator.shuffle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean, whether to shuffle the dataset before each epoch</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pbase.ptext.Iterator.sort">
+<code class="descname">sort</code><a class="headerlink" href="#pbase.ptext.Iterator.sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean, whether to sort the dataset regarding the sort_key
+before each epoch</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pbase.ptext.Iterator.data">
+<code class="descname">data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/iterator.html#Iterator.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Iterator.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the examples in the dataset in order, sorted or shuffled</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.ptext.Pipeline">
+<em class="property">class </em><code class="descclassname">pbase.ptext.</code><code class="descname">Pipeline</code><span class="sig-paren">(</span><em>convert_token=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/pipeline.html#Pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a pipeline for transforming sequence data</p>
+<p>The input is assumed to be utf-8 encoded <cite>str</cite> (Python 3) or
+<cite>unicode</cite> (Python 2)</p>
+<dl class="attribute">
+<dt id="pbase.ptext.Pipeline.convert_token">
+<code class="descname">convert_token</code><a class="headerlink" href="#pbase.ptext.Pipeline.convert_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function. The function to apply to input sequence data</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pbase.ptext.Vocab">
+<em class="property">class </em><code class="descclassname">pbase.ptext.</code><code class="descname">Vocab</code><span class="sig-paren">(</span><em>vocab_dict=None</em>, <em>vocab_file_path=None</em>, <em>vocab_file_parser=&lt;function vocab_file_parser&gt;</em>, <em>min_freq=1</em>, <em>padding_token=None</em>, <em>unk_token=None</em>, <em>specials=None</em>, <em>use_embedding=False</em>, <em>embed_dim=None</em>, <em>vocab_vector_file_path=None</em>, <em>vocab_vector_token_lower=False</em>, <em>unk_init=&lt;pbase.ptext.vocab.UniformInitializer object&gt;</em>, <em>export_path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pbase/ptext/vocab.html#Vocab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pbase.ptext.Vocab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a vocabulary object that will used for numericalize</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="papp.html" class="btn btn-neutral" title="Papp – Main components of pbase" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Peng Shi
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
