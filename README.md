@@ -6,7 +6,7 @@ Just a deep learning library for my convenience to develop the code quickly.
 
 On the progress.
 
-[Tutorial and Documents](https://cs.uwaterloo.ca/~p8shi/writing/pbase-tutorial.html)
+[Tutorial and Documents](https://impavidity.github.io/pbase/index.html)
 
 
 ## TODO
